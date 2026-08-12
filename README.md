@@ -4,6 +4,12 @@ Protótipo web para visualizar um Agbê em 3D e criar uma carta de distribuiçã
 
 O projeto gera a cabaça, os cordões e as miçangas proceduralmente com [Three.js](https://threejs.org/). Também permite exportar o modelo para formatos usados por programas de modelagem 3D.
 
+## Acesso online
+
+O editor publicado no GitHub Pages está disponível em:
+
+<https://bongarbit.github.io/mapa-do-agbe/>
+
 ## Funcionalidades
 
 - Visualização interativa do Agbê em 3D.
@@ -19,6 +25,7 @@ O projeto gera a cabaça, os cordões e as miçangas proceduralmente com [Three.
 
 ```text
 .
+├── index.html         # Entrada do GitHub Pages
 ├── agbe.html          # Visualizador do modelo 3D
 ├── agbe-carta.html    # Editor da carta de miçangas e visualização 3D
 ├── three-d-stage.js   # Componente de cena, câmera e exportação
