@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Agbê — carta de miçangas</title>
+<link rel="stylesheet" href="_ds/bongarbit-design-system-1a89f97f-bc79-4619-9eab-815250a62a94/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/bongarbit-design-system-1a89f97f-bc79-4619-9eab-815250a62a94/tokens/colors.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.184.0/build/three.module.js",
+    "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js",
+    "three/addons/exporters/OBJExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js",
+    "three/addons/exporters/GLTFExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js"
+  },
+  "integrity": {
+    "https://unpkg.com/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
+    "https://unpkg.com/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
+    "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js": "sha384-nbwtoZENJD3Vq+ACK0CuGQdPMuDWHkamC2KJD70EV5nfg6jQjfppKOea07YJN+N3",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js": "sha384-VofkvpG6HERhFCYbsUOHeNXBCqID2nfqkQqnVzE1jc/oPcz+qJ13ADdXH08hE+cQ"
+  }
+}
+</script>
+<style>
+  html,body{margin:0;height:100%;background:#ead6bf;color:#161512;
+    font-family:"The Mix Mono","TheMixMono",ui-monospace,monospace;}
+  #app{display:flex;height:100vh}
+  #carta{width:560px;flex:none;border-right:1px solid #161512;display:flex;flex-direction:column;
+    padding:20px;box-sizing:border-box;overflow:auto;background:#f0e2cd}
+  three-d-stage:not(:defined){visibility:hidden}
+  three-d-stage{display:block;flex:1;height:100vh}
+  .eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin:0 0 6px}
+  h1{font-size:22px;line-height:1.2;margin:0 0 4px;letter-spacing:.02em}
+  p.ajuda{font-size:12px;line-height:1.55;margin:0 0 14px;color:#161512b8}
+  .filete{height:0;border-top:1px solid #16151230;margin:14px 0}
+  canvas#chart{border:1px solid #161512;background:#ead6bf;cursor:crosshair;
+    box-shadow:3px 3px 0 #16151230;touch-action:none;display:block}
+  .eixos{display:flex;justify-content:space-between;font-size:10px;letter-spacing:.16em;
+    text-transform:uppercase;color:#161512a0;margin:6px 2px 0}
+  .paleta{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .swatch{width:44px;height:36px;border:1px solid #161512;cursor:pointer;position:relative;padding:0}
+  .swatch[aria-pressed="true"]{outline:2px solid #376182;outline-offset:2px}
+  .swatch span{position:absolute;left:2px;bottom:1px;font-size:9px;letter-spacing:.08em}
+  .acoes{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  button.acao{font:inherit;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    padding:9px 12px;border:1px solid #161512;background:#ead6bf;color:#161512;cursor:pointer;
+    box-shadow:3px 3px 0 #16151230;transition:background 200ms cubic-bezier(.2,.6,.2,1)}
+  button.acao:hover{background:#d3ad84}
+  button.acao:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #16151230}
+  .ctrl{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 12px}
+  .ctrl .linha{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+  .ctrl output{font-size:12px;letter-spacing:.06em;text-transform:none;color:#b14826}
+  input[type=range]{width:100%;accent-color:#b14826;height:20px}
+  .chk{display:flex;gap:8px;align-items:center;font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;margin-bottom:10px}
+  .chk input{accent-color:#b14826;width:15px;height:15px}
+  .dado{font-size:11px;line-height:1.6;color:#161512b0;margin:0}
+  .legenda{font-size:11px;line-height:1.6;color:#161512b0;margin-top:12px}
+  table{border-collapse:collapse;width:100%;font-size:11px;margin-top:8px}
+  th,td{border:1px solid #16151238;padding:4px 6px;text-align:right}
+  th{text-align:right;letter-spacing:.12em;text-transform:uppercase;font-size:10px;
+    font-weight:600;background:#e2cdb0}
+  th:first-child,td:first-child{text-align:left}
+  tfoot td{font-weight:700;background:#e2cdb0}
+  .rolagem{max-height:260px;overflow:auto;border:1px solid #161512;box-shadow:3px 3px 0 #16151230}
+  a{color:#b14826}
+  a:hover{color:#993d20}
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="carta">
+    <p class="eyebrow">Escola de luteria da Xambá</p>
+    <h1>Rede do Agbê</h1>
+    <p class="ajuda">A trança de cima é a argola de onde saem as linhas; cada par abre em diagonal,
+      encontra o par vizinho e amarra um nó. As miçangas — 10 mm, medida fixa — só existem enfiadas
+      nessas linhas: n miçangas entre um nó e o outro.</p>
+
+    <p class="eyebrow">Trançado</p>
+    <label class="ctrl">
+      <span class="linha"><span>Linhas na argola</span><output id="outEsp">48 linhas</output></span>
+      <input type="range" id="esp" min="12" max="96" step="2" value="48">
+    </label>
+    <label class="chk"><input type="checkbox" id="verLinhas" checked> mostrar linhas e trança</label>
+    <p class="dado" id="dado">—</p>
+
+    <div class="filete"></div>
+    <p class="eyebrow">Carta de miçangas</p>
+    <p class="ajuda">A carta é a rede aberta na volta inteira da cabaça: cada traço é uma linha,
+      cada bolinha é uma miçanga na sua posição real. Muda com a quantidade de linhas. Bolinha vazada
+      é linha sem miçanga — é assim que se desenha o recorte do decote.</p>
+    <canvas id="chart"></canvas>
+    <div class="eixos"><span>volta ›</span><span id="eixoMax">—</span></div>
+
+    <p class="eyebrow" style="margin-top:16px">Miçangas por fiada</p>
+    <div class="rolagem">
+      <table id="tabela"><thead><tr>
+        <th>Fiada</th><th>Entre nós</th><th>Segmentos</th><th>Nós</th><th>Miçangas</th>
+      </tr></thead><tbody></tbody><tfoot></tfoot></table>
+    </div>
+
+    <div class="filete"></div>
+    <p class="eyebrow">Cores</p>
+    <div class="paleta" id="paleta"></div>
+    <div class="acoes">
+      <button class="acao" data-acao="foto">Padrão da foto</button>
+      <button class="acao" data-acao="listras">Listras retas</button>
+      <button class="acao" data-acao="limpar">Limpar</button>
+      <button class="acao" data-acao="png">Baixar carta</button>
+    </div>
+    <p class="legenda">Clique e arraste para pintar · Shift+clique pinta a fiada inteira ·
+      Alt+clique ou botão direito tira a miçanga · o padrão fica salvo neste navegador.</p>
+  </aside>
+  <three-d-stage name="agbe" background="#ead6bf"></three-d-stage>
+</div>
+<script src="./three-d-stage.js"></script>
+<script type="module">
+const stage = document.querySelector('three-d-stage');
+const { THREE } = await stage.ready;
+
+const MIC = 0.010, rC = MIC/2, folga = rC*0.92;
+
+const PALETA = [
+  { id:0, nome:'vazio',     hex:null },
+  { id:1, nome:'papel',     hex:0xf0e4d2 },
+  { id:2, nome:'ocre',      hex:0xd4752d },
+  { id:3, nome:'amarelo',   hex:0xd0962d },
+  { id:4, nome:'terracota', hex:0xb14826 },
+  { id:5, nome:'baobá',     hex:0x31671f },
+  { id:6, nome:'azul',      hex:0x376182 },
+  { id:7, nome:'grafite',   hex:0x161512 },
+  { id:8, nome:'marrom',    hex:0x6b3c23 }
+];
+const hexCss = (h) => '#' + h.toString(16).padStart(6,'0');
+
+const mat = {
+  cabaca: new THREE.MeshStandardMaterial({ name:'cabaca', color:0xc98131, roughness:0.32, metalness:0.08, side:THREE.DoubleSide }),
+  boca:   new THREE.MeshStandardMaterial({ name:'cabaca_boca', color:0x4a2a15, roughness:0.85, side:THREE.DoubleSide }),
+  linha:  new THREE.MeshStandardMaterial({ name:'linha_algodao', color:0xb14826, roughness:0.92 }),
+  tranca: new THREE.MeshStandardMaterial({ name:'tranca', color:0x993d20, roughness:0.9 })
+};
+for (const p of PALETA) if (p.hex !== null)
+  mat[p.id] = new THREE.MeshStandardMaterial({ name:`micanga_${p.nome}`, color:p.hex, roughness:0.35, metalness:0.05 });
+
+const perfil = [
+  [0.000, 0.000],[0.030, 0.0012],[0.072, 0.008],[0.108, 0.028],[0.132, 0.055],[0.144, 0.086],
+  [0.147, 0.116],[0.142, 0.146],[0.128, 0.172],[0.107, 0.192],[0.083, 0.208],
+  [0.062, 0.220],[0.048, 0.230],[0.041, 0.240],[0.041, 0.250],[0.046, 0.262],
+  [0.058, 0.278],[0.070, 0.296],[0.079, 0.316],[0.083, 0.336],[0.083, 0.356],
+  [0.080, 0.374],[0.076, 0.386]
+];
+function raio(y){
+  if (y <= perfil[0][1]) return perfil[0][0];
+  for (let i=1;i<perfil.length;i++){
+    if (y <= perfil[i][1]){
+      const [r0,y0]=perfil[i-1], [r1,y1]=perfil[i];
+      return r0 + (r1-r0)*((y-y0)/(y1-y0));
+    }
+  }
+  return perfil[perfil.length-1][0];
+}
+
+const agbe = new THREE.Group(); agbe.name = 'agbe';
+const pts = perfil.map(([r,y]) => new THREE.Vector2(r,y));
+pts.push(new THREE.Vector2(0.070, 0.384));
+for (let y=0.372; y>=0.150; y-=0.014) pts.push(new THREE.Vector2(Math.max(0.006, raio(y)-0.006), y));
+pts.push(new THREE.Vector2(0.05, 0.128));
+pts.push(new THREE.Vector2(0.00, 0.120));
+const corpo = new THREE.Mesh(new THREE.LatheGeometry(pts, 128), mat.cabaca);
+corpo.name = 'cabaca_corpo'; corpo.castShadow = corpo.receiveShadow = true;
+agbe.add(corpo);
+const aroBoca = new THREE.Mesh(new THREE.TorusGeometry(0.0730, 0.0035, 8, 96), mat.boca);
+aroBoca.name = 'borda_boca'; aroBoca.rotation.x = Math.PI/2; aroBoca.position.y = 0.385;
+agbe.add(aroBoca);
+
+// --- mapa de cores: independente da malha, sobrevive à troca de linhas ---
+const yIni = 0.012, yTranca = 0.212, MAPA_COLS = 120;
+function passoAcima(y, ds){
+  const h = 0.0004;
+  const inclin = (raio(y+h) - raio(y)) / h;
+  return y + ds/Math.sqrt(1 + inclin*inclin);
+}
+const fiadasMapa = [];
+for (let y=yIni; y <= yTranca; y = passoAcima(y, MIC*0.6)) fiadasMapa.push(y);
+const MAPA_ROWS = fiadasMapa.length;
+const mapa = new Uint8Array(MAPA_ROWS*MAPA_COLS);
+const mIdx = (l,c) => l*MAPA_COLS + c;
+function celulaDe(y, ang){
+  let l = 0, melhor = Infinity;
+  for (let i=0;i<MAPA_ROWS;i++){ const d = Math.abs(fiadasMapa[i]-y); if (d < melhor){ melhor = d; l = i; } }
+  const u = (((ang % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI)) / (2*Math.PI);
+  return { l, c: Math.min(MAPA_COLS-1, Math.floor(u*MAPA_COLS)) };
+}
+
+function padraoFoto(){
+  const base = 0.196, amp = 0.013, ondas = 4;
+  const limite = (ang) => base + amp*Math.cos(ondas*ang);
+  for (let l=0;l<MAPA_ROWS;l++) for (let c=0;c<MAPA_COLS;c++){
+    const u = (c+0.5)/MAPA_COLS, ang = u*2*Math.PI, y = fiadasMapa[l];
+    if (y > limite(ang)) { mapa[mIdx(l,c)] = 0; continue; }
+    const d = (limite(ang) - y)/(MIC*0.62) + 4.5*u;
+    mapa[mIdx(l,c)] = d < 6 ? 1 : d < 16 ? 2 : d < 26 ? 3 : 4;
+  }
+}
+function padraoListras(){
+  for (let l=0;l<MAPA_ROWS;l++) for (let c=0;c<MAPA_COLS;c++){
+    const doTopo = MAPA_ROWS-1-l;
+    mapa[mIdx(l,c)] = doTopo < 4 ? 0 : doTopo < 12 ? 1 : doTopo < 22 ? 2 : doTopo < 32 ? 3 : 4;
+  }
+}
+const SALVO = `agbe-mapa-v3-${MAPA_ROWS}x${MAPA_COLS}`;
+const guardado = localStorage.getItem(SALVO);
+if (guardado && guardado.length === mapa.length){
+  for (let k=0;k<mapa.length;k++) mapa[k] = Number(guardado[k]) || 0;
+} else padraoFoto();
+
+// --- topologia da rede: nós, segmentos e miçangas sobre as linhas ------
+const params = { linhas: 48, verLinhas: true };
+let malha = null;
+
+function montarMalha(){
+  const PARES = Math.max(6, Math.round(params.linhas/2));
+  const passoAng = (2*Math.PI)/PARES;
+  const espacamento = (2*Math.PI*raio(yTranca))/PARES;
+  const passoAnel = espacamento*0.5;
+
+  const aneis = [yTranca];
+  let y = yTranca;
+  for (let k=0;k<300;k++){
+    const h = 0.0004;
+    const inclin = (raio(y) - raio(y-h)) / h;
+    y -= passoAnel/Math.sqrt(1 + inclin*inclin);
+    if (y <= 0.010) break;
+    aneis.push(y);
+  }
+
+  const contas = [];                  // {y, ang, tipo}
+  const fiadasInfo = [];              // uma linha da tabela por banda
+  for (let k=0;k<aneis.length-1;k++){
+    const yk = aneis[k], y2 = aneis[k+1], desloc = (k%2)*passoAng*0.5;
+    const a1 = desloc, a2 = desloc + passoAng*0.5;
+    const p1 = new THREE.Vector3(Math.cos(a1)*raio(yk), yk, Math.sin(a1)*raio(yk));
+    const p2 = new THREE.Vector3(Math.cos(a2)*raio(y2), y2, Math.sin(a2)*raio(y2));
+    const n = Math.max(1, Math.round(p1.distanceTo(p2)/MIC) - 1);
+    let nos = 0;
+    for (let j=0;j<PARES;j++){
+      const ang = j*passoAng + desloc;
+      if (k > 0){ contas.push({ y: yk, ang, tipo:'nó' }); nos++; }
+      for (const dir of [1,-1]) for (let i=1;i<=n;i++){
+        const t = i/(n+1);
+        contas.push({ y: yk + (y2-yk)*t, ang: ang + dir*passoAng*0.5*t, tipo:'linha' });
+      }
+    }
+    fiadasInfo.push({ k, n, segmentos: PARES*2, nos, total: PARES*2*n + nos });
+  }
+  return { PARES, passoAng, espacamento, aneis, contas, fiadasInfo };
+}
+
+// --- 3D -----------------------------------------------------------------
+const rede = new THREE.Group(); rede.name = 'rede';
+agbe.add(rede);
+const m4 = new THREE.Matrix4(), q = new THREE.Quaternion();
+const eixoY = new THREE.Vector3(0,1,0), escala = new THREE.Vector3(1, 0.9, 1);
+
+function fundir(geos){
+  const total = geos.reduce((s,g)=> s + g.attributes.position.count, 0);
+  const pos = new Float32Array(total*3), nor = new Float32Array(total*3), uv = new Float32Array(total*2);
+  let o3=0,o2=0;
+  for (const g of geos){
+    pos.set(g.attributes.position.array,o3); nor.set(g.attributes.normal.array,o3);
+    uv.set(g.attributes.uv.array,o2);
+    o3 += g.attributes.position.count*3; o2 += g.attributes.position.count*2; g.dispose();
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  geo.setAttribute('normal', new THREE.BufferAttribute(nor,3));
+  geo.setAttribute('uv', new THREE.BufferAttribute(uv,2));
+  return geo;
+}
+const limparGrupo = (g) => { for (const f of [...g.children]){ f.geometry.dispose(); g.remove(f); } };
+const noPonto = (y, ang, off) => new THREE.Vector3(Math.cos(ang)*(raio(y)+off), y, Math.sin(ang)*(raio(y)+off));
+const corDaConta = (c) => { const cel = celulaDe(c.y, c.ang); return mapa[mIdx(cel.l, cel.c)]; };
+
+function cordaoTorcido(yc, rBase, voltas, raioTubo, nome){
+  const g = [];
+  for (const fase of [0, Math.PI]){
+    const p = [];
+    for (let s=0;s<=240;s++){
+      const t = s/240, a = t*2*Math.PI, tw = a*voltas + fase;
+      const rr = rBase + Math.cos(tw)*0.0026;
+      p.push(new THREE.Vector3(Math.cos(a)*rr, yc + Math.sin(tw)*0.0026, Math.sin(a)*rr));
+    }
+    const m = new THREE.Mesh(
+      new THREE.TubeGeometry(new THREE.CatmullRomCurve3(p, true), 480, raioTubo, 6, true), mat.tranca);
+    m.name = `${nome}_${fase ? 'b' : 'a'}`; m.castShadow = true;
+    g.push(m);
+  }
+  return g;
+}
+
+let contasVisiveis = 0;
+function construirRede(){
+  limparGrupo(rede);
+  const { PARES, passoAng, espacamento, aneis, contas, fiadasInfo } = malha;
+
+  if (params.verLinhas){
+    for (const m of cordaoTorcido(yTranca, raio(yTranca)+folga+0.003, PARES, 0.0026, 'tranca')) rede.add(m);
+    const yFecho = aneis[aneis.length-1] - 0.003;
+    for (const m of cordaoTorcido(yFecho, raio(yFecho)+folga+0.002, PARES, 0.0024, 'corrente_base')) rede.add(m);
+
+    const tubos = [];
+    for (let j=0;j<PARES;j++) for (const dir of [1,-1]){
+      const p = aneis.map((yy,k) => noPonto(yy, j*passoAng + dir*k*passoAng*0.5, folga*0.5));
+      const angFim = j*passoAng + dir*(aneis.length-1)*passoAng*0.5;
+      const rFim = raio(aneis[aneis.length-1]);
+      p.push(new THREE.Vector3(Math.cos(angFim+dir*0.05)*(rFim+0.018), 0.010, Math.sin(angFim+dir*0.05)*(rFim+0.018)));
+      p.push(new THREE.Vector3(Math.cos(angFim+dir*0.10)*(rFim+0.046), 0.0022, Math.sin(angFim+dir*0.10)*(rFim+0.046)));
+      p.push(new THREE.Vector3(Math.cos(angFim+dir*0.14)*(rFim+0.066), 0.0018, Math.sin(angFim+dir*0.14)*(rFim+0.066)));
+      tubos.push(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(p), aneis.length*5, 0.0018, 5, false).toNonIndexed());
+    }
+    const m = new THREE.Mesh(fundir(tubos), mat.linha);
+    m.name = 'linhas_pares'; m.castShadow = true;
+    rede.add(m);
+  }
+
+  const baseConta = new THREE.SphereGeometry(rC, 9, 7).toNonIndexed();
+  const baldes = {};
+  contasVisiveis = 0;
+  for (const c of contas){
+    const cor = corDaConta(c);
+    if (!cor) continue;
+    contasVisiveis++;
+    (baldes[cor] ||= []).push(baseConta.clone().applyMatrix4(
+      m4.compose(noPonto(c.y, c.ang, folga), q.setFromAxisAngle(eixoY, -c.ang), escala)));
+  }
+  for (const [cor, lista] of Object.entries(baldes)){
+    const mm = new THREE.Mesh(fundir(lista), mat[Number(cor)]);
+    mm.name = `micangas_${PALETA[Number(cor)].nome}`;
+    mm.castShadow = mm.receiveShadow = true;
+    rede.add(mm);
+  }
+  baseConta.dispose();
+
+  document.getElementById('dado').textContent =
+    `${PARES*2} linhas (${PARES} pares, ${(espacamento*1000).toFixed(1).replace('.',',')} mm entre pares) · ` +
+    `${fiadasInfo.length} fiadas · ${contas.length.toLocaleString('pt-BR')} casas na rede · ` +
+    `${contasVisiveis.toLocaleString('pt-BR')} miçangas no desenho`;
+}
+
+// --- carta 2D: a própria rede aberta ------------------------------------
+const chart = document.getElementById('chart');
+const ESC = window.devicePixelRatio > 1 ? 2 : 1;
+const W = 516, H = 300;
+chart.width = W*ESC; chart.height = H*ESC;
+chart.style.width = W+'px'; chart.style.height = H+'px';
+const ctx = chart.getContext('2d');
+ctx.scale(ESC, ESC);
+let corAtual = 2;
+
+function projetar(c){
+  const yTop = malha.aneis[0], yBot = malha.aneis[malha.aneis.length-1];
+  const u = (((c.ang % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI)) / (2*Math.PI);
+  return { px: 8 + u*(W-16), py: 10 + (yTop - c.y)/(yTop-yBot)*(H-24) };
+}
+
+function desenharCarta(){
+  ctx.clearRect(0,0,W,H);
+  const { PARES, passoAng, aneis, contas } = malha;
+  // linhas
+  ctx.strokeStyle = 'rgba(177,72,38,.55)'; ctx.lineWidth = 1;
+  for (let j=0;j<PARES;j++) for (const dir of [1,-1]){
+    let anterior = null;
+    for (let k=0;k<aneis.length;k++){
+      const p = projetar({ y: aneis[k], ang: j*passoAng + dir*k*passoAng*0.5 });
+      if (anterior && Math.abs(p.px - anterior.px) < W*0.5){
+        ctx.beginPath(); ctx.moveTo(anterior.px, anterior.py); ctx.lineTo(p.px, p.py); ctx.stroke();
+      }
+      anterior = p;
+    }
+  }
+  // miçangas
+  for (const c of contas){
+    const p = projetar(c), cor = corDaConta(c);
+    ctx.beginPath(); ctx.arc(p.px, p.py, c.tipo === 'nó' ? 3 : 2.6, 0, Math.PI*2);
+    if (cor){ ctx.fillStyle = hexCss(PALETA[cor].hex); ctx.fill();
+      ctx.strokeStyle = 'rgba(22,21,18,.5)'; ctx.lineWidth = 0.6; ctx.stroke(); }
+    else { ctx.strokeStyle = 'rgba(22,21,18,.3)'; ctx.lineWidth = 0.7; ctx.stroke(); }
+  }
+}
+
+function desenharTabela(){
+  const corpoT = document.querySelector('#tabela tbody'), rodape = document.querySelector('#tabela tfoot');
+  const info = malha.fiadasInfo;
+  corpoT.innerHTML = info.map((f,i) =>
+    `<tr><td>${i+1}ª</td><td>${f.n}</td><td>${f.segmentos}</td><td>${f.nos}</td><td>${f.total}</td></tr>`
+  ).join('');
+  const soma = info.reduce((s,f)=> s+f.total, 0);
+  rodape.innerHTML = `<tr><td>Total</td><td>—</td><td>${info.reduce((s,f)=>s+f.segmentos,0)}</td>` +
+    `<td>${info.reduce((s,f)=>s+f.nos,0)}</td><td>${soma.toLocaleString('pt-BR')}</td></tr>`;
+  document.getElementById('eixoMax').textContent =
+    `${malha.PARES*2} linhas · ${info.length} fiadas`;
+}
+
+function refazerTudo(){
+  malha = montarMalha();
+  construirRede();
+  desenharCarta();
+  desenharTabela();
+}
+
+let repintar;
+function pintou(){
+  desenharCarta();
+  localStorage.setItem(SALVO, Array.from(mapa).join(''));
+  clearTimeout(repintar);
+  repintar = setTimeout(construirRede, 70);
+}
+
+let pintando = false, valorPincel = 0;
+function contaMaisProxima(ev){
+  const r = chart.getBoundingClientRect();
+  const mx = ev.clientX - r.left, my = ev.clientY - r.top;
+  let melhor = null, dist = 49;
+  for (const c of malha.contas){
+    const p = projetar(c);
+    const d = (p.px-mx)**2 + (p.py-my)**2;
+    if (d < dist){ dist = d; melhor = c; }
+  }
+  return melhor;
+}
+function pintar(ev){
+  const c = contaMaisProxima(ev); if (!c) return;
+  if (ev.shiftKey){
+    const cel = celulaDe(c.y, c.ang);
+    for (let col=0;col<MAPA_COLS;col++) mapa[mIdx(cel.l, col)] = valorPincel;
+  } else {
+    const cel = celulaDe(c.y, c.ang);
+    mapa[mIdx(cel.l, cel.c)] = valorPincel;
+  }
+  pintou();
+}
+chart.addEventListener('pointerdown', (ev) => {
+  ev.preventDefault(); chart.setPointerCapture(ev.pointerId);
+  valorPincel = (ev.button === 2 || ev.altKey) ? 0 : corAtual;
+  pintando = true; pintar(ev);
+});
+chart.addEventListener('pointermove', (ev) => { if (pintando) pintar(ev); });
+addEventListener('pointerup', () => { pintando = false; });
+chart.addEventListener('contextmenu', (ev) => ev.preventDefault());
+
+const paleta = document.getElementById('paleta');
+for (const p of PALETA){
+  const b = document.createElement('button');
+  b.className = 'swatch'; b.type = 'button';
+  b.style.background = p.hex === null
+    ? 'repeating-linear-gradient(45deg,#e2cdb0 0 5px,#d3ad84 5px 10px)'
+    : hexCss(p.hex);
+  b.title = p.nome;
+  b.setAttribute('aria-pressed', String(p.id === corAtual));
+  b.innerHTML = `<span style="color:${p.id===7?'#ead6bf':'#161512aa'}">${p.nome}</span>`;
+  b.addEventListener('click', () => {
+    corAtual = p.id;
+    paleta.querySelectorAll('.swatch').forEach((s,k)=> s.setAttribute('aria-pressed', String(k===p.id)));
+  });
+  paleta.appendChild(b);
+}
+
+document.querySelectorAll('button.acao').forEach(b => b.addEventListener('click', () => {
+  const a = b.dataset.acao;
+  if (a === 'foto') { padraoFoto(); pintou(); }
+  if (a === 'listras') { padraoListras(); pintou(); }
+  if (a === 'limpar') { mapa.fill(0); pintou(); }
+  if (a === 'png') {
+    const link = document.createElement('a');
+    link.download = 'carta-micangas-agbe.png';
+    link.href = chart.toDataURL('image/png');
+    link.click();
+  }
+}));
+
+let recalcular;
+const esp = document.getElementById('esp'), outEsp = document.getElementById('outEsp');
+esp.addEventListener('input', () => {
+  params.linhas = Number(esp.value);
+  outEsp.textContent = `${esp.value} linhas`;
+  clearTimeout(recalcular); recalcular = setTimeout(refazerTudo, 90);
+});
+document.getElementById('verLinhas').addEventListener('change', (ev) => {
+  params.verLinhas = ev.target.checked;
+  clearTimeout(recalcular); recalcular = setTimeout(construirRede, 60);
+});
+
+refazerTudo();
+const caixa = new THREE.Box3().setFromObject(agbe);
+agbe.position.y -= caixa.min.y;
+agbe.position.x -= (caixa.min.x+caixa.max.x)/2;
+agbe.position.z -= (caixa.min.z+caixa.max.z)/2;
+stage.setObject(agbe);
+</script>
+</body>
+</html>

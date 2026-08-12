@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Agbê — modelo 3D</title>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.184.0/build/three.module.js",
+    "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js",
+    "three/addons/exporters/OBJExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js",
+    "three/addons/exporters/GLTFExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js"
+  },
+  "integrity": {
+    "https://unpkg.com/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
+    "https://unpkg.com/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
+    "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js": "sha384-nbwtoZENJD3Vq+ACK0CuGQdPMuDWHkamC2KJD70EV5nfg6jQjfppKOea07YJN+N3",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js": "sha384-VofkvpG6HERhFCYbsUOHeNXBCqID2nfqkQqnVzE1jc/oPcz+qJ13ADdXH08hE+cQ"
+  }
+}
+</script>
+<style>
+  html,body{margin:0;height:100%;background:#ead6bf;}
+  three-d-stage:not(:defined){visibility:hidden}
+  three-d-stage{display:block;width:100vw;height:100vh}
+</style>
+</head>
+<body>
+<three-d-stage name="agbe" background="#ead6bf" autorotate></three-d-stage>
+<script src="./three-d-stage.js"></script>
+<script type="module">
+const stage = document.querySelector('three-d-stage');
+const { THREE } = await stage.ready;
+
+const mat = {
+  cabaca: new THREE.MeshStandardMaterial({ name:'cabaca', color:0xc98131, roughness:0.32, metalness:0.08, side:THREE.DoubleSide }),
+  boca:   new THREE.MeshStandardMaterial({ name:'cabaca_boca', color:0x4a2a15, roughness:0.85, metalness:0.0, side:THREE.DoubleSide }),
+  corda:  new THREE.MeshStandardMaterial({ name:'corda_coral', color:0xb14826, roughness:0.9, metalness:0.0 }),
+  branca: new THREE.MeshStandardMaterial({ name:'micanga_branca', color:0xf0e4d2, roughness:0.35, metalness:0.05 }),
+  ocre:   new THREE.MeshStandardMaterial({ name:'micanga_ocre', color:0xd4752d, roughness:0.35, metalness:0.05 }),
+  amarela:new THREE.MeshStandardMaterial({ name:'micanga_amarela', color:0xd0962d, roughness:0.35, metalness:0.05 }),
+  terra:  new THREE.MeshStandardMaterial({ name:'micanga_terracota', color:0xb14826, roughness:0.35, metalness:0.05 })
+};
+
+// --- perfil da cabaça: bojo largo, cintura estreita, copo aberto no topo ---
+const perfil = [
+  [0.000, 0.000],[0.030, 0.0012],[0.072, 0.008],[0.108, 0.028],[0.132, 0.055],[0.144, 0.086],
+  [0.147, 0.116],[0.142, 0.146],[0.128, 0.172],[0.107, 0.192],[0.083, 0.208],
+  [0.062, 0.220],[0.048, 0.230],[0.041, 0.240],[0.041, 0.250],[0.046, 0.262],
+  [0.058, 0.278],[0.070, 0.296],[0.079, 0.316],[0.083, 0.336],[0.083, 0.356],
+  [0.080, 0.374],[0.076, 0.386]
+];
+function raio(y){
+  if (y <= perfil[0][1]) return perfil[0][0];
+  for (let i=1;i<perfil.length;i++){
+    if (y <= perfil[i][1]){
+      const [r0,y0]=perfil[i-1], [r1,y1]=perfil[i];
+      return r0 + (r1-r0)*((y-y0)/(y1-y0));
+    }
+  }
+  return perfil[perfil.length-1][0];
+}
+
+const agbe = new THREE.Group();
+agbe.name = 'agbe';
+
+// corpo: casca externa, lábio da boca e parede interna (boca aberta)
+const pts = perfil.map(([r,y]) => new THREE.Vector2(r,y));
+pts.push(new THREE.Vector2(0.070, 0.384));
+for (let y=0.372; y>=0.150; y-=0.014) pts.push(new THREE.Vector2(Math.max(0.006, raio(y)-0.006), y));
+pts.push(new THREE.Vector2(0.05, 0.128));
+pts.push(new THREE.Vector2(0.00, 0.120));
+const corpo = new THREE.Mesh(new THREE.LatheGeometry(pts, 128), mat.cabaca);
+corpo.name = 'cabaca_corpo';
+corpo.castShadow = corpo.receiveShadow = true;
+agbe.add(corpo);
+
+// aro escuro da boca cortada
+const aroBoca = new THREE.Mesh(new THREE.TorusGeometry(0.0730, 0.0035, 8, 96), mat.boca);
+aroBoca.name = 'borda_boca';
+aroBoca.rotation.x = Math.PI/2; aroBoca.position.y = 0.385;
+agbe.add(aroBoca);
+
+// --- rede de miçangas costuradas -------------------------------------
+const D = 0.0102;            // passo entre miçangas (diâmetro efetivo)
+const rC = 0.0049;           // raio da miçanga
+const yIni = 0.012;
+const scallopBase = 0.196, scallopAmp = 0.013, scallopOndas = 4;
+const limiteTopo = (ang) => scallopBase + scallopAmp*Math.cos(scallopOndas*ang);
+
+function proximoY(y, ds){
+  const h = 0.0004;
+  const inclin = (raio(y+h) - raio(y)) / h;
+  return y + ds/Math.sqrt(1 + inclin*inclin);
+}
+
+// linhas (fiadas) de baixo para cima
+const fiadas = [];
+for (let y=yIni; y <= scallopBase+scallopAmp; y = proximoY(y, D)) fiadas.push(y);
+const nFiadas = fiadas.length;
+
+// índice (fracionário) da fiada que toca a borda recortada, por ângulo
+function fiadaDaBorda(ang){
+  const lim = limiteTopo(ang);
+  for (let i=nFiadas-1;i>=0;i--){
+    if (fiadas[i] <= lim){
+      const prox = fiadas[i+1];
+      return prox === undefined ? i : i + (lim - fiadas[i])/(prox - fiadas[i]);
+    }
+  }
+  return 0;
+}
+
+const baseConta = new THREE.SphereGeometry(rC, 9, 7).toNonIndexed();
+const buckets = { branca:[], ocre:[], amarela:[], terra:[] };
+const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), esc = new THREE.Vector3(1, 0.9, 1);
+
+for (let i=0;i<nFiadas;i++){
+  const y = fiadas[i];
+  const r = raio(y);
+  const n = Math.max(8, Math.round((2*Math.PI*r)/D));
+  const passoAng = (2*Math.PI)/n;
+  for (let j=0;j<n;j++){
+    const ang = j*passoAng + (i%2)*passoAng*0.5;
+    if (y > limiteTopo(ang)) continue;
+    const u = ((ang % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI) / (2*Math.PI);
+    // faixas contadas em fiadas a partir da borda recortada, em diagonal
+    const doTopo = fiadaDaBorda(ang) - i + 3.0*u;
+    const cor = doTopo < 4 ? 'branca' : doTopo < 10 ? 'ocre' : doTopo < 16 ? 'amarela' : 'terra';
+    const rr = r + rC*0.92;
+    m4.compose(
+      new THREE.Vector3(Math.cos(ang)*rr, y, Math.sin(ang)*rr),
+      q.setFromAxisAngle(new THREE.Vector3(0,1,0), -ang),
+      esc
+    );
+    buckets[cor].push(baseConta.clone().applyMatrix4(m4));
+  }
+}
+
+function fundir(geos){
+  const total = geos.reduce((s,g)=> s + g.attributes.position.count, 0);
+  const pos = new Float32Array(total*3), nor = new Float32Array(total*3), uv = new Float32Array(total*2);
+  let o3=0, o2=0;
+  for (const g of geos){
+    pos.set(g.attributes.position.array, o3);
+    nor.set(g.attributes.normal.array, o3);
+    uv.set(g.attributes.uv.array, o2);
+    o3 += g.attributes.position.count*3;
+    o2 += g.attributes.position.count*2;
+    g.dispose();
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  geo.setAttribute('normal', new THREE.BufferAttribute(nor,3));
+  geo.setAttribute('uv', new THREE.BufferAttribute(uv,2));
+  return geo;
+}
+
+let totalContas = 0;
+for (const [nome, lista] of Object.entries(buckets)){
+  if (!lista.length) continue;
+  totalContas += lista.length;
+  const m = new THREE.Mesh(fundir(lista), mat[nome]);
+  m.name = `micangas_${nome}`;
+  m.castShadow = true; m.receiveShadow = true;
+  agbe.add(m);
+}
+baseConta.dispose();
+
+// --- amarração: cordão na cintura, tirantes até a borda da rede, rabicho ---
+const yCintura = 0.243;
+const aro = new THREE.Mesh(new THREE.TorusGeometry(raio(yCintura)+0.003, 0.0035, 8, 72), mat.corda);
+aro.name = 'cordao_cintura';
+aro.rotation.x = Math.PI/2; aro.position.y = yCintura; aro.castShadow = true;
+agbe.add(aro);
+
+const tirantes = new THREE.Group(); tirantes.name = 'tirantes';
+const NT = 24;
+for (let k=0;k<NT;k++){
+  const ang = k*(2*Math.PI/NT);
+  const yFim = limiteTopo(ang) - 0.004;
+  const p = [];
+  for (let s=0;s<=6;s++){
+    const t = s/6;
+    const y = yCintura + (yFim-yCintura)*t;
+    const rr = raio(y) + 0.004 + 0.004*t;
+    p.push(new THREE.Vector3(Math.cos(ang)*rr, y, Math.sin(ang)*rr));
+  }
+  const t = new THREE.Mesh(
+    new THREE.TubeGeometry(new THREE.CatmullRomCurve3(p), 20, 0.0022, 5, false), mat.corda);
+  t.name = `tirante_${k}`;
+  t.castShadow = true;
+  tirantes.add(t);
+}
+agbe.add(tirantes);
+
+// rabicho: sobra de linha caindo com miçangas na ponta
+const angR = Math.PI*0.35, rR = raio(yCintura)+0.006;
+const rabPts = [
+  new THREE.Vector3(Math.cos(angR)*rR, yCintura, Math.sin(angR)*rR),
+  new THREE.Vector3(Math.cos(angR)*(rR+0.055), 0.185, Math.sin(angR)*(rR+0.055)),
+  new THREE.Vector3(Math.cos(angR)*(rR+0.075), 0.115, Math.sin(angR)*(rR+0.075)),
+  new THREE.Vector3(Math.cos(angR)*(rR+0.078), 0.072, Math.sin(angR)*(rR+0.078))
+];
+const rabCurva = new THREE.CatmullRomCurve3(rabPts);
+const rabicho = new THREE.Mesh(new THREE.TubeGeometry(rabCurva, 48, 0.0022, 5, false), mat.corda);
+rabicho.name = 'rabicho';
+rabicho.castShadow = true;
+agbe.add(rabicho);
+
+const geoPonta = new THREE.SphereGeometry(rC, 10, 8);
+['branca','ocre','amarela','terra','ocre'].forEach((cor, i) => {
+  const c = new THREE.Mesh(geoPonta, mat[cor]);
+  c.position.copy(rabCurva.getPointAt(0.72 + i*0.065));
+  c.scale.set(1,0.9,1);
+  c.name = `conta_rabicho_${i}`;
+  c.castShadow = true;
+  agbe.add(c);
+});
+
+// assenta a base no y=0, centrado na origem
+const box = new THREE.Box3().setFromObject(agbe);
+agbe.position.y -= box.min.y;
+agbe.position.x -= (box.min.x+box.max.x)/2;
+agbe.position.z -= (box.min.z+box.max.z)/2;
+
+console.log('miçangas:', totalContas, 'fiadas:', nFiadas);
+stage.setObject(agbe);
+</script>
+</body>
+</html>
