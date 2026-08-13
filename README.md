@@ -21,7 +21,8 @@ O editor publicado no GitHub Pages está disponível em:
 - Persistência automática do desenho e da paleta no navegador.
 - Exportação do mapa como PNG.
 - Exportação e importação do projeto no formato `.agbe`.
-- Interface móvel com abas para alternar entre mapa e modelo 3D.
+- Zoom do mapa por botões, ajuste automático à tela e gesto de pinça.
+- Interface móvel com abas para alternar entre mapa, modelo 3D e ajustes.
 - Exportação do modelo como OBJ + MTL ou GLB.
 
 ## Estrutura do projeto
@@ -64,8 +65,9 @@ Em `agbe-carta.html`:
 6. Ative ou desative a exibição das linhas e do traçado sobre o mapa.
 7. Use **Mais cores** para habilitar outras cores Bongarbit ou adicionar uma cor personalizada.
 8. Use os padrões disponíveis para iniciar ou limpar rapidamente uma composição.
+9. Use `−`, `+` e **Caber** acima do mapa para controlar o zoom.
 
-Em telas sensíveis ao toque, um dedo pinta e dois dedos deslocam o mapa. As barras de rolagem também podem ser usadas para navegar. As abas **Mapa** e **Modelo 3D** alternam entre as duas visualizações em telas estreitas.
+Em telas sensíveis ao toque, um dedo pinta e dois dedos deslocam o mapa ou controlam o zoom com o gesto de pinça. As barras de rolagem também podem ser usadas para navegar. Em telas estreitas, as abas **Mapa**, **Modelo 3D** e **Ajustes** separam o desenho, a prévia tridimensional e os controles de configuração. Ao abrir o mapa no celular, ele é ajustado automaticamente à largura disponível.
 
 O desenho é salvo automaticamente no `localStorage` do navegador. Esse conteúdo é local ao navegador e à origem utilizada para abrir o projeto.
 
@@ -127,8 +129,10 @@ Ao modificar o projeto, verifique pelo menos:
 3. persistência do mapa e da paleta após recarregar a página;
 4. exportação e importação de `.agbe`;
 5. exportação de PNG, OBJ/MTL e GLB;
-6. pintura e deslocamento do mapa em telas sensíveis ao toque;
-7. comportamento em telas estreitas e com diferentes densidades de pixel.
+6. pintura, deslocamento e zoom do mapa em telas sensíveis ao toque;
+7. botões de zoom e ajuste do mapa à área disponível;
+8. alternância entre as abas de mapa, modelo 3D e ajustes em telas estreitas;
+9. comportamento com diferentes densidades de pixel.
 
 ## Licença
 

@@ -1,2 +1,51 @@
+# Arquivos locais deste projeto
+github.md
+
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
 .thumbnail
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Editores e IDEs
+.vscode/
+.idea/
+*.code-workspace
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# Arquivos temporários e logs
+*.log
+*.tmp
+*.temp
+*.bak
+*.orig
+*.cache
+
+# Configurações e segredos locais
+.env
+.env.*
+!.env.example
+
+# Dependências e saídas de ferramentas web
+node_modules/
+dist/
+build/
+.cache/
+.parcel-cache/
+.vite/
+coverage/

@@ -61,7 +61,14 @@
   .quadro::-webkit-scrollbar-thumb{background:#161512;border:3px solid #e2cdb0}
   .quadro::-webkit-scrollbar-thumb:active{background:#b14826}
   .quadro::-webkit-scrollbar-corner{background:#e2cdb0}
-  canvas#chart{display:block;touch-action:none}
+  .zoom{display:flex;gap:6px;align-items:center;margin:0 0 8px;font-size:11px;letter-spacing:.14em}
+  .zoom button{font:inherit;font-size:13px;min-width:38px;height:38px;padding:0 10px;
+    border:1px solid #161512;background:#ead6bf;color:#161512;cursor:pointer;
+    box-shadow:2px 2px 0 #16151230}
+  .zoom button:active{transform:translate(2px,2px);box-shadow:0 0 0 #16151230}
+  .zoom span{min-width:52px;text-align:center;color:#161512b0}
+  #lona{position:relative;transform-origin:0 0}
+  canvas#chart{display:block;touch-action:none;transform-origin:0 0}
   summary{font-size:11px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;
     padding:10px 0;border-top:1px solid #16151230;margin-top:12px}
   input[type=color]{width:52px;height:44px;padding:0;border:1px solid #161512;background:#ead6bf;cursor:pointer}
@@ -98,17 +105,24 @@
       padding:14px 8px;border:0;border-right:1px solid #161512;background:transparent;color:#161512;cursor:pointer}
     #abas button:last-child{border-right:0}
     #abas button[aria-pressed="true"]{background:#161512;color:#ead6bf}
-  #visor{width:100%;flex:1}
+  #visor{width:100%;flex:1;min-height:0}
     #painel{width:100%;flex:1;border-right:0;min-height:0;padding-right:78px}
-    #paleta{position:fixed;right:0;top:0;bottom:0;width:66px;margin:0;padding:8px 7px;gap:6px;
+    #paleta{position:fixed;right:0;top:var(--abas,50px);bottom:0;width:66px;margin:0;padding:8px 7px;gap:6px;
       flex-direction:column;flex-wrap:nowrap;overflow:auto;z-index:7;
       background:#e2cdb0;border-left:1px solid #161512;box-shadow:-3px 0 0 #16151218}
     #paleta .swatch{width:52px;height:44px;flex:none}
     body[data-aba="modelo"] #paleta{display:none}
-    three-d-stage{flex:1;height:auto;min-height:0}
+    three-d-stage{width:100%;height:100%;min-height:0}
     body[data-aba="mapa"] #visor{display:none}
     body[data-aba="modelo"] #painel{display:none}
-    .quadro{max-height:70dvh}
+    .quadro{max-height:none;height:100%;min-height:0;flex:1}
+    #painel{display:flex;flex-direction:column}
+    #mapaSec{display:flex;flex-direction:column;height:100%;min-height:0}
+    #mapaSec .tituloMapa,#mapaSec .dicaMapa{display:none}
+    body[data-aba="mapa"] #ajustes{display:none}
+    body[data-aba="ajustes"] #mapaSec{display:none}
+    body[data-aba="ajustes"] #paleta{display:none}
+    body[data-aba="modelo"] #painel{display:none}
   }
 </style>
 </head>
@@ -116,9 +130,11 @@
 <div id="abas">
   <button type="button" data-aba="mapa" aria-pressed="true">Mapa</button>
   <button type="button" data-aba="modelo" aria-pressed="false">Modelo 3D</button>
+  <button type="button" data-aba="ajustes" aria-pressed="false">Ajustes</button>
 </div>
 <div id="app">
   <aside id="painel">
+   <section id="ajustes">
     <p class="eyebrow">Escola de luteria da Xambá</p>
     <h1>Rede do Agbê</h1>
     <p class="ajuda">Da trança de cima sai uma linha dupla por ponto da argola: cada uma abre para um
@@ -143,9 +159,6 @@
       Onde a linha passa, o quadrado é editável — e como a linha corre em diagonal, o desenho das
       diagonais aparece sozinho. Os quadrados cor de cabaça são vão aberto: ali não há linha, não há
       miçanga e não se pinta. Quadrado vazado é linha sem miçanga.</p>
-    <div class="quadro" id="quadro"><canvas id="chart"></canvas></div>
-    <p class="ajuda" style="margin:8px 0 0">Um dedo pinta · dois dedos arrastam o mapa · as barras de
-      rolagem embaixo e na lateral também movem.</p>
     <label class="chk" style="margin-top:10px"><input type="checkbox" id="verTracado" checked> mostrar o traçado das linhas sobre o mapa</label>
     <div class="acoes" style="margin-top:8px">
       <button class="acao" data-acao="foto">Exemplo</button>
@@ -160,7 +173,6 @@
 
     <div class="filete"></div>
     <p class="eyebrow">Cores</p>
-    <div class="paleta" id="paleta"></div>
     <details id="maisCores">
       <summary>Mais cores</summary>
       <p class="ajuda" style="margin:10px 0 6px">Ligue outras cores da paleta Bongarbit ou acrescente
@@ -183,6 +195,21 @@
         <th>Fiada</th><th>Miçangas entre nós</th><th>Casas</th><th>Quantidade de miçangas</th>
       </tr></thead><tbody></tbody><tfoot></tfoot></table>
     </div>
+   </section>
+
+   <section id="mapaSec">
+    <p class="eyebrow tituloMapa">Mapa de miçangas</p>
+    <div class="zoom">
+      <button type="button" data-zoom="-1" aria-label="afastar">−</button>
+      <span id="zoomValor">100%</span>
+      <button type="button" data-zoom="1" aria-label="aproximar">+</button>
+      <button type="button" data-zoom="0">Caber</button>
+    </div>
+    <div class="quadro" id="quadro"><div id="lona"><canvas id="chart"></canvas></div></div>
+    <p class="ajuda dicaMapa">Um dedo pinta · dois dedos arrastam e dão zoom de pinça · as barras de
+      rolagem também movem.</p>
+    <div class="paleta" id="paleta"></div>
+   </section>
   </aside>
   <div id="visor">
     <label id="girarVisor"><input type="checkbox" id="girar" checked> girando</label>
@@ -584,6 +611,7 @@ function refazerTudo(){
   assentar();
   desenharQuadro();
   desenharTabela();
+  aplicarZoom(zoom);
 }
 
 let repintar;
@@ -597,17 +625,41 @@ function pintou(){
 
 let corAtual = 2, pintando = false;
 const quadro = document.getElementById('quadro');
+const lona = document.getElementById('lona');
 const toques = new Map();
-let arrastando = false, ultimoCentro = null;
+let arrastando = false, ultimoCentro = null, distIni = 0, zoomIni = 1;
+let zoom = 1;
+
+function aplicarZoom(z, foco){
+  const antes = { x: (quadro.scrollLeft + (foco?.x ?? quadro.clientWidth/2))/zoom,
+                  y: (quadro.scrollTop  + (foco?.y ?? quadro.clientHeight/2))/zoom };
+  zoom = Math.max(0.25, Math.min(4, z));
+  chart.style.transform = `scale(${zoom})`;
+  lona.style.width = (COLS*CEL*zoom) + 'px';
+  lona.style.height = (ROWS*CEL*zoom) + 'px';
+  quadro.scrollLeft = antes.x*zoom - (foco?.x ?? quadro.clientWidth/2);
+  quadro.scrollTop  = antes.y*zoom - (foco?.y ?? quadro.clientHeight/2);
+  const v = document.getElementById('zoomValor');
+  if (v) v.textContent = Math.round(zoom*100) + '%';
+}
+function caber(){
+  const z = (quadro.clientWidth - 16)/(COLS*CEL);
+  aplicarZoom(z, { x: 0, y: 0 });
+  quadro.scrollLeft = 0; quadro.scrollTop = 0;
+}
 
 function centroDosToques(){
   let x = 0, y = 0;
   for (const p of toques.values()){ x += p.x; y += p.y; }
   return { x: x/toques.size, y: y/toques.size };
 }
+function distanciaDosToques(){
+  const [a, b] = [...toques.values()];
+  return Math.hypot(a.x-b.x, a.y-b.y);
+}
 function celulaDoEvento(ev){
   const r = chart.getBoundingClientRect();
-  const px = ev.clientX - r.left, py = ev.clientY - r.top;
+  const px = (ev.clientX - r.left)/zoom, py = (ev.clientY - r.top)/zoom;
   const row = Math.floor(py/CEL);
   const fila = filas[row];
   if (!fila) return null;
@@ -623,10 +675,11 @@ function pintar(ev){
 chart.addEventListener('pointerdown', (ev) => {
   ev.preventDefault();
   toques.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
-  if (toques.size >= 2){                       // dois dedos: arrasta o mapa
+  if (toques.size >= 2){                       // dois dedos: arrasta e dá zoom
     pintando = false;
     arrastando = true;
     ultimoCentro = centroDosToques();
+    distIni = distanciaDosToques(); zoomIni = zoom;
     for (const id of toques.keys())
       if (chart.hasPointerCapture(id)) chart.releasePointerCapture(id);
     return;
@@ -637,7 +690,10 @@ chart.addEventListener('pointerdown', (ev) => {
 chart.addEventListener('pointermove', (ev) => {
   if (toques.has(ev.pointerId)) toques.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
   if (arrastando && toques.size >= 2){
-    const c = centroDosToques();
+    const c = centroDosToques(), r = quadro.getBoundingClientRect();
+    const d = distanciaDosToques();
+    if (distIni > 10 && Math.abs(d - distIni) > 6)
+      aplicarZoom(zoomIni*(d/distIni), { x: c.x - r.left, y: c.y - r.top });
     quadro.scrollLeft -= c.x - ultimoCentro.x;
     quadro.scrollTop  -= c.y - ultimoCentro.y;
     ultimoCentro = c;
@@ -654,6 +710,12 @@ chart.addEventListener('pointerup', soltarToque);
 chart.addEventListener('pointercancel', soltarToque);
 addEventListener('pointerup', () => { pintando = false; });
 chart.addEventListener('contextmenu', (ev) => ev.preventDefault());
+for (const tipo of ['touchstart','touchmove'])
+  quadro.addEventListener(tipo, (ev) => { if (ev.target === chart) ev.preventDefault(); }, { passive:false });
+document.querySelectorAll('.zoom button').forEach(b => b.addEventListener('click', () => {
+  const d = Number(b.dataset.zoom);
+  if (d === 0) caber(); else aplicarZoom(zoom*(d > 0 ? 1.25 : 0.8));
+}));
 
 const paleta = document.getElementById('paleta');
 const reserva = document.getElementById('reserva');
@@ -819,6 +881,13 @@ document.getElementById('verTracado').addEventListener('change', (ev) => {
   desenharQuadro();
 });
 
+function medirAbas(){
+  const h = document.getElementById('abas').getBoundingClientRect().height;
+  if (h) document.documentElement.style.setProperty('--abas', h + 'px');
+}
+medirAbas();
+addEventListener('resize', medirAbas);
+
 document.querySelectorAll('#abas button').forEach(b => b.addEventListener('click', () => {
   document.body.dataset.aba = b.dataset.aba;
   document.querySelectorAll('#abas button').forEach(o =>
@@ -827,6 +896,7 @@ document.querySelectorAll('#abas button').forEach(b => b.addEventListener('click
 }));
 
 refazerTudo();
+if (innerWidth <= 900) requestAnimationFrame(caber);
 stage.setObject(agbe);
 </script>
 </body>
