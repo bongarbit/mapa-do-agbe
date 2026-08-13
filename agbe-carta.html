@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Agbê — carta de miçangas</title>
 <link rel="stylesheet" href="_ds/bongarbit-design-system-1a89f97f-bc79-4619-9eab-815250a62a94/tokens/fonts.css">
 <link rel="stylesheet" href="_ds/bongarbit-design-system-1a89f97f-bc79-4619-9eab-815250a62a94/tokens/colors.css">
@@ -23,94 +24,126 @@
 }
 </script>
 <style>
+  *{box-sizing:border-box}
   html,body{margin:0;height:100%;background:#ead6bf;color:#161512;
-    font-family:"The Mix Mono","TheMixMono",ui-monospace,monospace;}
-  #app{display:flex;height:100vh}
-  #carta{width:560px;flex:none;border-right:1px solid #161512;display:flex;flex-direction:column;
-    padding:20px;box-sizing:border-box;overflow:auto;background:#f0e2cd}
+    font-family:"The Mix Mono","TheMixMono",ui-monospace,monospace;overscroll-behavior:none}
+  #app{display:flex;height:100dvh}
+  #painel{width:580px;flex:none;border-right:1px solid #161512;display:block;
+    padding:20px;overflow:auto;background:#f0e2cd;-webkit-overflow-scrolling:touch}
+  #painel > *{flex:none}
   three-d-stage:not(:defined){visibility:hidden}
-  three-d-stage{display:block;flex:1;height:100vh}
+  three-d-stage{display:block;flex:1;height:100dvh}
   .eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin:0 0 6px}
   h1{font-size:22px;line-height:1.2;margin:0 0 4px;letter-spacing:.02em}
   p.ajuda{font-size:12px;line-height:1.55;margin:0 0 14px;color:#161512b8}
   .filete{height:0;border-top:1px solid #16151230;margin:14px 0}
-  canvas#chart{border:1px solid #161512;background:#ead6bf;cursor:crosshair;
-    box-shadow:3px 3px 0 #16151230;touch-action:none;display:block}
-  .eixos{display:flex;justify-content:space-between;font-size:10px;letter-spacing:.16em;
-    text-transform:uppercase;color:#161512a0;margin:6px 2px 0}
+  .ctrl{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 14px}
+  .ctrl .linha{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;gap:8px}
+  .ctrl output{font-size:12px;letter-spacing:.06em;text-transform:none;color:#b14826}
+  input[type=range]{width:100%;accent-color:#b14826;height:26px}
+  .chk{display:flex;gap:8px;align-items:center;font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;margin-bottom:10px}
+  .chk input{accent-color:#b14826;width:18px;height:18px}
+  .dado{font-size:11px;line-height:1.6;color:#161512b0;margin:0}
+  .quadro{border:1px solid #161512;box-shadow:3px 3px 0 #16151230;background:#ead6bf;
+    overflow:auto;max-height:52vh;min-height:220px;touch-action:none;-webkit-overflow-scrolling:touch}
+  canvas#chart{display:block;touch-action:none}
   .paleta{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
-  .swatch{width:44px;height:36px;border:1px solid #161512;cursor:pointer;position:relative;padding:0}
+  .swatch{width:52px;height:44px;border:1px solid #161512;cursor:pointer;position:relative;padding:0}
   .swatch[aria-pressed="true"]{outline:2px solid #376182;outline-offset:2px}
-  .swatch span{position:absolute;left:2px;bottom:1px;font-size:9px;letter-spacing:.08em}
+  .swatch span{position:absolute;left:3px;bottom:2px;font-size:9px;letter-spacing:.08em}
   .acoes{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
   button.acao{font:inherit;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
-    padding:9px 12px;border:1px solid #161512;background:#ead6bf;color:#161512;cursor:pointer;
+    padding:12px 14px;border:1px solid #161512;background:#ead6bf;color:#161512;cursor:pointer;
     box-shadow:3px 3px 0 #16151230;transition:background 200ms cubic-bezier(.2,.6,.2,1)}
   button.acao:hover{background:#d3ad84}
   button.acao:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #16151230}
-  .ctrl{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin:0 0 12px}
-  .ctrl .linha{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
-  .ctrl output{font-size:12px;letter-spacing:.06em;text-transform:none;color:#b14826}
-  input[type=range]{width:100%;accent-color:#b14826;height:20px}
-  .chk{display:flex;gap:8px;align-items:center;font-size:11px;letter-spacing:.14em;
-    text-transform:uppercase;margin-bottom:10px}
-  .chk input{accent-color:#b14826;width:15px;height:15px}
-  .dado{font-size:11px;line-height:1.6;color:#161512b0;margin:0}
-  .legenda{font-size:11px;line-height:1.6;color:#161512b0;margin-top:12px}
-  table{border-collapse:collapse;width:100%;font-size:11px;margin-top:8px}
-  th,td{border:1px solid #16151238;padding:4px 6px;text-align:right}
-  th{text-align:right;letter-spacing:.12em;text-transform:uppercase;font-size:10px;
-    font-weight:600;background:#e2cdb0}
+  table{border-collapse:collapse;width:100%;font-size:11px}
+  th,td{border:1px solid #16151238;padding:5px 7px;text-align:right}
+  th{letter-spacing:.1em;text-transform:uppercase;font-size:10px;background:#e2cdb0}
   th:first-child,td:first-child{text-align:left}
   tfoot td{font-weight:700;background:#e2cdb0}
-  .rolagem{max-height:260px;overflow:auto;border:1px solid #161512;box-shadow:3px 3px 0 #16151230}
+  .rolagem{max-height:280px;min-height:180px;overflow:auto;border:1px solid #161512;
+    box-shadow:3px 3px 0 #16151230}
+  .passo{display:flex;gap:4px;justify-content:flex-end;align-items:center}
+  .passo button{font:inherit;font-size:12px;width:26px;height:26px;line-height:1;padding:0;
+    border:1px solid #161512;background:#ead6bf;color:#161512;cursor:pointer}
+  .passo button:active{transform:translate(1px,1px)}
+  .passo span{min-width:18px;text-align:center}
+  #abas{display:none}
   a{color:#b14826}
   a:hover{color:#993d20}
+  @media (max-width:900px){
+    #app{flex-direction:column;height:100dvh}
+    #abas{display:flex;flex:none;border-bottom:1px solid #161512;background:#e2cdb0}
+    #abas button{flex:1;font:inherit;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+      padding:14px 8px;border:0;border-right:1px solid #161512;background:transparent;color:#161512;cursor:pointer}
+    #abas button:last-child{border-right:0}
+    #abas button[aria-pressed="true"]{background:#161512;color:#ead6bf}
+    #painel{width:100%;flex:1;border-right:0;min-height:0}
+    three-d-stage{flex:1;height:auto;min-height:0}
+    body[data-aba="mapa"] three-d-stage{display:none}
+    body[data-aba="modelo"] #painel{display:none}
+    .quadro{max-height:70dvh}
+  }
 </style>
 </head>
-<body>
+<body data-aba="mapa">
+<div id="abas">
+  <button type="button" data-aba="mapa" aria-pressed="true">Mapa</button>
+  <button type="button" data-aba="modelo" aria-pressed="false">Modelo 3D</button>
+</div>
 <div id="app">
-  <aside id="carta">
+  <aside id="painel">
     <p class="eyebrow">Escola de luteria da Xambá</p>
     <h1>Rede do Agbê</h1>
-    <p class="ajuda">A trança de cima é a argola de onde saem as linhas; cada par abre em diagonal,
-      encontra o par vizinho e amarra um nó. As miçangas — 10 mm, medida fixa — só existem enfiadas
-      nessas linhas: n miçangas entre um nó e o outro.</p>
+    <p class="ajuda">Da trança de cima sai uma linha dupla por ponto da argola: cada uma abre para um
+      lado, encontra a vizinha e amarra um nó. As miçangas — 10 mm, medida fixa — ficam <em>entre</em>
+      um nó e outro, nunca sobre o nó.</p>
 
     <p class="eyebrow">Trançado</p>
     <label class="ctrl">
-      <span class="linha"><span>Linhas na argola</span><output id="outEsp">48 linhas</output></span>
-      <input type="range" id="esp" min="12" max="96" step="2" value="48">
+      <span class="linha"><span>Pontos na argola</span><output id="outPontos">24 pontos · 48 linhas</output></span>
+      <input type="range" id="pontos" min="6" max="48" step="1" value="24">
+    </label>
+    <label class="ctrl">
+      <span class="linha"><span>Tamanho da cabaça</span><output id="outTam">29 cm de bojo</output></span>
+      <input type="range" id="tam" min="60" max="160" step="5" value="100">
     </label>
     <label class="chk"><input type="checkbox" id="verLinhas" checked> mostrar linhas e trança</label>
     <p class="dado" id="dado">—</p>
 
     <div class="filete"></div>
-    <p class="eyebrow">Carta de miçangas</p>
-    <p class="ajuda">A carta é a rede aberta na volta inteira da cabaça: cada traço é uma linha,
-      cada bolinha é uma miçanga na sua posição real. Muda com a quantidade de linhas. Bolinha vazada
-      é linha sem miçanga — é assim que se desenha o recorte do decote.</p>
-    <canvas id="chart"></canvas>
-    <div class="eixos"><span>volta ›</span><span id="eixoMax">—</span></div>
-
-    <p class="eyebrow" style="margin-top:16px">Miçangas por fiada</p>
-    <div class="rolagem">
-      <table id="tabela"><thead><tr>
-        <th>Fiada</th><th>Entre nós</th><th>Segmentos</th><th>Nós</th><th>Miçangas</th>
-      </tr></thead><tbody></tbody><tfoot></tfoot></table>
+    <p class="eyebrow">Mapa de miçangas</p>
+    <p class="ajuda">Quadriculado da cabaça aberta: cada quadrado é um lugar de 10 mm na superfície.
+      Onde a linha passa, o quadrado é editável — e como a linha corre em diagonal, o desenho das
+      diagonais aparece sozinho. Os quadrados cor de cabaça são vão aberto: ali não há linha, não há
+      miçanga e não se pinta. Quadrado vazado é linha sem miçanga.</p>
+    <div class="quadro"><canvas id="chart"></canvas></div>
+    <label class="chk" style="margin-top:10px"><input type="checkbox" id="verTracado" checked> mostrar o traçado das linhas sobre o mapa</label>
+    <div class="acoes" style="margin-top:8px">
+      <button class="acao" data-acao="foto">Padrão da foto</button>
+      <button class="acao" data-acao="listras">Listras retas</button>
+      <button class="acao" data-acao="cheio">Preencher</button>
+      <button class="acao" data-acao="limpar">Limpar</button>
+      <button class="acao" data-acao="png">Baixar mapa</button>
     </div>
 
     <div class="filete"></div>
     <p class="eyebrow">Cores</p>
     <div class="paleta" id="paleta"></div>
-    <div class="acoes">
-      <button class="acao" data-acao="foto">Padrão da foto</button>
-      <button class="acao" data-acao="listras">Listras retas</button>
-      <button class="acao" data-acao="limpar">Limpar</button>
-      <button class="acao" data-acao="png">Baixar carta</button>
+    <p class="ajuda" style="margin-top:10px">Toque ou arraste para pintar · toque com a cor
+      <em>vazio</em> para tirar a miçanga · o desenho fica salvo neste navegador.</p>
+
+    <div class="filete"></div>
+    <p class="eyebrow">Miçangas por fiada</p>
+    <p class="ajuda">Ajuste quantas miçangas entram em cada vão daquela fiada: o losango cresce e a
+      rede se refaz.</p>
+    <div class="rolagem">
+      <table id="tabela"><thead><tr>
+        <th>Fiada</th><th>Entre nós</th><th>Linhas</th><th>Casas</th><th>Pintadas</th>
+      </tr></thead><tbody></tbody><tfoot></tfoot></table>
     </div>
-    <p class="legenda">Clique e arraste para pintar · Shift+clique pinta a fiada inteira ·
-      Alt+clique ou botão direito tira a miçanga · o padrão fica salvo neste navegador.</p>
   </aside>
   <three-d-stage name="agbe" background="#ead6bf"></three-d-stage>
 </div>
@@ -143,125 +176,114 @@ const mat = {
 for (const p of PALETA) if (p.hex !== null)
   mat[p.id] = new THREE.MeshStandardMaterial({ name:`micanga_${p.nome}`, color:p.hex, roughness:0.35, metalness:0.05 });
 
-const perfil = [
+const perfilBase = [
   [0.000, 0.000],[0.030, 0.0012],[0.072, 0.008],[0.108, 0.028],[0.132, 0.055],[0.144, 0.086],
   [0.147, 0.116],[0.142, 0.146],[0.128, 0.172],[0.107, 0.192],[0.083, 0.208],
   [0.062, 0.220],[0.048, 0.230],[0.041, 0.240],[0.041, 0.250],[0.046, 0.262],
   [0.058, 0.278],[0.070, 0.296],[0.079, 0.316],[0.083, 0.336],[0.083, 0.356],
   [0.080, 0.374],[0.076, 0.386]
 ];
-function raio(y){
-  if (y <= perfil[0][1]) return perfil[0][0];
-  for (let i=1;i<perfil.length;i++){
-    if (y <= perfil[i][1]){
-      const [r0,y0]=perfil[i-1], [r1,y1]=perfil[i];
+const params = { pontos: 24, escala: 1, verLinhas: true, verTracado: true };
+const nPorFiada = [];                       // override por fiada
+
+function raioBase(y){
+  if (y <= perfilBase[0][1]) return perfilBase[0][0];
+  for (let i=1;i<perfilBase.length;i++){
+    if (y <= perfilBase[i][1]){
+      const [r0,y0]=perfilBase[i-1], [r1,y1]=perfilBase[i];
       return r0 + (r1-r0)*((y-y0)/(y1-y0));
     }
   }
-  return perfil[perfil.length-1][0];
+  return perfilBase[perfilBase.length-1][0];
 }
+const raio = (y) => raioBase(y/params.escala)*params.escala;
+const yTrancaBase = 0.212;
+const yTranca = () => yTrancaBase*params.escala;
 
+// --- cabaça -------------------------------------------------------------
 const agbe = new THREE.Group(); agbe.name = 'agbe';
-const pts = perfil.map(([r,y]) => new THREE.Vector2(r,y));
-pts.push(new THREE.Vector2(0.070, 0.384));
-for (let y=0.372; y>=0.150; y-=0.014) pts.push(new THREE.Vector2(Math.max(0.006, raio(y)-0.006), y));
-pts.push(new THREE.Vector2(0.05, 0.128));
-pts.push(new THREE.Vector2(0.00, 0.120));
-const corpo = new THREE.Mesh(new THREE.LatheGeometry(pts, 128), mat.cabaca);
+const corpo = new THREE.Mesh(new THREE.BufferGeometry(), mat.cabaca);
 corpo.name = 'cabaca_corpo'; corpo.castShadow = corpo.receiveShadow = true;
 agbe.add(corpo);
 const aroBoca = new THREE.Mesh(new THREE.TorusGeometry(0.0730, 0.0035, 8, 96), mat.boca);
-aroBoca.name = 'borda_boca'; aroBoca.rotation.x = Math.PI/2; aroBoca.position.y = 0.385;
+aroBoca.name = 'borda_boca'; aroBoca.rotation.x = Math.PI/2;
 agbe.add(aroBoca);
 
-// --- mapa de cores: independente da malha, sobrevive à troca de linhas ---
-const yIni = 0.012, yTranca = 0.212, MAPA_COLS = 120;
-function passoAcima(y, ds){
-  const h = 0.0004;
-  const inclin = (raio(y+h) - raio(y)) / h;
-  return y + ds/Math.sqrt(1 + inclin*inclin);
+function construirCabaca(){
+  const S = params.escala;
+  const pts = perfilBase.map(([r,y]) => new THREE.Vector2(r*S, y*S));
+  pts.push(new THREE.Vector2(0.070*S, 0.384*S));
+  for (let y=0.372; y>=0.150; y-=0.014)
+    pts.push(new THREE.Vector2(Math.max(0.006, raioBase(y)-0.006)*S, y*S));
+  pts.push(new THREE.Vector2(0.05*S, 0.128*S));
+  pts.push(new THREE.Vector2(0.00, 0.120*S));
+  corpo.geometry.dispose();
+  corpo.geometry = new THREE.LatheGeometry(pts, 128);
+  aroBoca.geometry.dispose();
+  aroBoca.geometry = new THREE.TorusGeometry(0.0730*S, 0.0035*S, 8, 96);
+  aroBoca.position.y = 0.385*S;
 }
-const fiadasMapa = [];
-for (let y=yIni; y <= yTranca; y = passoAcima(y, MIC*0.6)) fiadasMapa.push(y);
-const MAPA_ROWS = fiadasMapa.length;
+
+// --- mapa de cores: normalizado, sobrevive a qualquer mudança ------------
+const MAPA_ROWS = 200, MAPA_COLS = 360;
 const mapa = new Uint8Array(MAPA_ROWS*MAPA_COLS);
 const mIdx = (l,c) => l*MAPA_COLS + c;
-function celulaDe(y, ang){
-  let l = 0, melhor = Infinity;
-  for (let i=0;i<MAPA_ROWS;i++){ const d = Math.abs(fiadasMapa[i]-y); if (d < melhor){ melhor = d; l = i; } }
-  const u = (((ang % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI)) / (2*Math.PI);
-  return { l, c: Math.min(MAPA_COLS-1, Math.floor(u*MAPA_COLS)) };
+const linhaMapa = (v) => Math.max(0, Math.min(MAPA_ROWS-1, Math.floor(v*MAPA_ROWS)));
+const colMapa = (u) => ((Math.floor(u*MAPA_COLS) % MAPA_COLS) + MAPA_COLS) % MAPA_COLS;
+const lerMapa = (b) => mapa[mIdx(linhaMapa(b.v), colMapa(b.u))];
+function pintarMapa(b, valor){
+  const l0 = linhaMapa(b.v - b.dv/2), l1 = linhaMapa(b.v + b.dv/2);
+  const c0 = Math.floor((b.u - b.du/2)*MAPA_COLS), c1 = Math.floor((b.u + b.du/2)*MAPA_COLS);
+  for (let l=Math.min(l0,l1); l<=Math.max(l0,l1); l++)
+    for (let c=c0; c<=c1; c++) mapa[mIdx(l, ((c % MAPA_COLS)+MAPA_COLS)%MAPA_COLS)] = valor;
 }
 
-function padraoFoto(){
-  const base = 0.196, amp = 0.013, ondas = 4;
-  const limite = (ang) => base + amp*Math.cos(ondas*ang);
-  for (let l=0;l<MAPA_ROWS;l++) for (let c=0;c<MAPA_COLS;c++){
-    const u = (c+0.5)/MAPA_COLS, ang = u*2*Math.PI, y = fiadasMapa[l];
-    if (y > limite(ang)) { mapa[mIdx(l,c)] = 0; continue; }
-    const d = (limite(ang) - y)/(MIC*0.62) + 4.5*u;
-    mapa[mIdx(l,c)] = d < 6 ? 1 : d < 16 ? 2 : d < 26 ? 3 : 4;
-  }
-}
-function padraoListras(){
-  for (let l=0;l<MAPA_ROWS;l++) for (let c=0;c<MAPA_COLS;c++){
-    const doTopo = MAPA_ROWS-1-l;
-    mapa[mIdx(l,c)] = doTopo < 4 ? 0 : doTopo < 12 ? 1 : doTopo < 22 ? 2 : doTopo < 32 ? 3 : 4;
-  }
-}
-const SALVO = `agbe-mapa-v3-${MAPA_ROWS}x${MAPA_COLS}`;
-const guardado = localStorage.getItem(SALVO);
-if (guardado && guardado.length === mapa.length){
-  for (let k=0;k<mapa.length;k++) mapa[k] = Number(guardado[k]) || 0;
-} else padraoFoto();
-
-// --- topologia da rede: nós, segmentos e miçangas sobre as linhas ------
-const params = { linhas: 48, verLinhas: true };
+// --- topologia ----------------------------------------------------------
 let malha = null;
-
 function montarMalha(){
-  const PARES = Math.max(6, Math.round(params.linhas/2));
-  const passoAng = (2*Math.PI)/PARES;
-  const espacamento = (2*Math.PI*raio(yTranca))/PARES;
-  const passoAnel = espacamento*0.5;
-
-  const aneis = [yTranca];
-  let y = yTranca;
-  for (let k=0;k<300;k++){
-    const h = 0.0004;
-    const inclin = (raio(y) - raio(y-h)) / h;
-    y -= passoAnel/Math.sqrt(1 + inclin*inclin);
-    if (y <= 0.010) break;
-    aneis.push(y);
+  const P = params.pontos, passoAng = (2*Math.PI)/P;
+  const yTop = yTranca();
+  const aneis = [yTop], bandas = [];
+  let y = yTop, k = 0;
+  while (k < 60){
+    const r = raio(y);
+    const arcoH = r*passoAng*0.5;
+    // padrão pela curvatura: o vão entre dois pontos cresce com a circunferência da fiada,
+    // então a barriga pede 3–4 miçangas e o gargalo e o fundo pedem 1–2
+    let n = nPorFiada[k] ?? Math.max(1, Math.min(8, Math.round((2*Math.PI*r/P)/MIC) - 1));
+    const L = (n+1)*MIC;
+    const y2 = y - Math.sqrt(Math.max(L*L - arcoH*arcoH, (0.35*L)**2));
+    if (y2 <= 0.010*params.escala) break;
+    bandas.push({ k, n, y1:y, y2 });
+    aneis.push(y2);
+    y = y2; k++;
   }
-
-  const contas = [];                  // {y, ang, tipo}
-  const fiadasInfo = [];              // uma linha da tabela por banda
-  for (let k=0;k<aneis.length-1;k++){
-    const yk = aneis[k], y2 = aneis[k+1], desloc = (k%2)*passoAng*0.5;
-    const a1 = desloc, a2 = desloc + passoAng*0.5;
-    const p1 = new THREE.Vector3(Math.cos(a1)*raio(yk), yk, Math.sin(a1)*raio(yk));
-    const p2 = new THREE.Vector3(Math.cos(a2)*raio(y2), y2, Math.sin(a2)*raio(y2));
-    const n = Math.max(1, Math.round(p1.distanceTo(p2)/MIC) - 1);
-    let nos = 0;
-    for (let j=0;j<PARES;j++){
-      const ang = j*passoAng + desloc;
-      if (k > 0){ contas.push({ y: yk, ang, tipo:'nó' }); nos++; }
-      for (const dir of [1,-1]) for (let i=1;i<=n;i++){
-        const t = i/(n+1);
-        contas.push({ y: yk + (y2-yk)*t, ang: ang + dir*passoAng*0.5*t, tipo:'linha' });
+  const contas = [];
+  for (const b of bandas){
+    for (let j=0;j<P;j++) for (const dir of [1,-1]){
+      const angIni = j*passoAng + dir*b.k*passoAng*0.5;
+      const col = 2*j + (dir === 1 ? 0 : 1);
+      for (let i=1;i<=b.n;i++){
+        const t = i/(b.n+1);
+        const yy = b.y1 + (b.y2-b.y1)*t;
+        const ang = angIni + dir*passoAng*0.5*t;
+        const dyv = Math.abs(b.y2-b.y1)/(b.n+1)/yTop;
+        contas.push({
+          banda: b.k, linhaCol: col, i, y: yy, ang,
+          v: (yTop - yy)/yTop, u: ((ang/(2*Math.PI)) % 1 + 1) % 1,
+          dv: Math.max(dyv*0.9, 0.004), du: Math.max(passoAng*0.5/(2*Math.PI)/(b.n+1)*0.9, 0.0025)
+        });
       }
     }
-    fiadasInfo.push({ k, n, segmentos: PARES*2, nos, total: PARES*2*n + nos });
   }
-  return { PARES, passoAng, espacamento, aneis, contas, fiadasInfo };
+  return { P, passoAng, aneis, bandas, contas, yTop };
 }
 
 // --- 3D -----------------------------------------------------------------
 const rede = new THREE.Group(); rede.name = 'rede';
 agbe.add(rede);
 const m4 = new THREE.Matrix4(), q = new THREE.Quaternion();
-const eixoY = new THREE.Vector3(0,1,0), escala = new THREE.Vector3(1, 0.9, 1);
+const eixoY = new THREE.Vector3(0,1,0), escConta = new THREE.Vector3(1, 0.9, 1);
 
 function fundir(geos){
   const total = geos.reduce((s,g)=> s + g.attributes.position.count, 0);
@@ -280,10 +302,9 @@ function fundir(geos){
 }
 const limparGrupo = (g) => { for (const f of [...g.children]){ f.geometry.dispose(); g.remove(f); } };
 const noPonto = (y, ang, off) => new THREE.Vector3(Math.cos(ang)*(raio(y)+off), y, Math.sin(ang)*(raio(y)+off));
-const corDaConta = (c) => { const cel = celulaDe(c.y, c.ang); return mapa[mIdx(cel.l, cel.c)]; };
 
 function cordaoTorcido(yc, rBase, voltas, raioTubo, nome){
-  const g = [];
+  const out = [];
   for (const fase of [0, Math.PI]){
     const p = [];
     for (let s=0;s<=240;s++){
@@ -294,27 +315,27 @@ function cordaoTorcido(yc, rBase, voltas, raioTubo, nome){
     const m = new THREE.Mesh(
       new THREE.TubeGeometry(new THREE.CatmullRomCurve3(p, true), 480, raioTubo, 6, true), mat.tranca);
     m.name = `${nome}_${fase ? 'b' : 'a'}`; m.castShadow = true;
-    g.push(m);
+    out.push(m);
   }
-  return g;
+  return out;
 }
 
 let contasVisiveis = 0;
 function construirRede(){
   limparGrupo(rede);
-  const { PARES, passoAng, espacamento, aneis, contas, fiadasInfo } = malha;
+  const { P, passoAng, aneis, bandas, contas, yTop } = malha;
 
   if (params.verLinhas){
-    for (const m of cordaoTorcido(yTranca, raio(yTranca)+folga+0.003, PARES, 0.0026, 'tranca')) rede.add(m);
+    for (const m of cordaoTorcido(yTop, raio(yTop)+folga+0.003, P, 0.0026, 'tranca')) rede.add(m);
     const yFecho = aneis[aneis.length-1] - 0.003;
-    for (const m of cordaoTorcido(yFecho, raio(yFecho)+folga+0.002, PARES, 0.0024, 'corrente_base')) rede.add(m);
+    for (const m of cordaoTorcido(yFecho, raio(yFecho)+folga+0.002, P, 0.0024, 'corrente_base')) rede.add(m);
 
     const tubos = [];
-    for (let j=0;j<PARES;j++) for (const dir of [1,-1]){
+    const rFim = raio(aneis[aneis.length-1]);
+    for (let j=0;j<P;j++) for (const dir of [1,-1]){
       const p = aneis.map((yy,k) => noPonto(yy, j*passoAng + dir*k*passoAng*0.5, folga*0.5));
       const angFim = j*passoAng + dir*(aneis.length-1)*passoAng*0.5;
-      const rFim = raio(aneis[aneis.length-1]);
-      p.push(new THREE.Vector3(Math.cos(angFim+dir*0.05)*(rFim+0.018), 0.010, Math.sin(angFim+dir*0.05)*(rFim+0.018)));
+      p.push(new THREE.Vector3(Math.cos(angFim+dir*0.05)*(rFim+0.018), 0.010*params.escala, Math.sin(angFim+dir*0.05)*(rFim+0.018)));
       p.push(new THREE.Vector3(Math.cos(angFim+dir*0.10)*(rFim+0.046), 0.0022, Math.sin(angFim+dir*0.10)*(rFim+0.046)));
       p.push(new THREE.Vector3(Math.cos(angFim+dir*0.14)*(rFim+0.066), 0.0018, Math.sin(angFim+dir*0.14)*(rFim+0.066)));
       tubos.push(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(p), aneis.length*5, 0.0018, 5, false).toNonIndexed());
@@ -328,11 +349,11 @@ function construirRede(){
   const baldes = {};
   contasVisiveis = 0;
   for (const c of contas){
-    const cor = corDaConta(c);
+    const cor = lerMapa(c);
     if (!cor) continue;
     contasVisiveis++;
     (baldes[cor] ||= []).push(baseConta.clone().applyMatrix4(
-      m4.compose(noPonto(c.y, c.ang, folga), q.setFromAxisAngle(eixoY, -c.ang), escala)));
+      m4.compose(noPonto(c.y, c.ang, folga), q.setFromAxisAngle(eixoY, -c.ang), escConta)));
   }
   for (const [cor, lista] of Object.entries(baldes)){
     const mm = new THREE.Mesh(fundir(lista), mat[Number(cor)]);
@@ -342,107 +363,190 @@ function construirRede(){
   }
   baseConta.dispose();
 
+  const bojo = Math.max(...perfilBase.map(p=>p[0]))*2*params.escala*100;
   document.getElementById('dado').textContent =
-    `${PARES*2} linhas (${PARES} pares, ${(espacamento*1000).toFixed(1).replace('.',',')} mm entre pares) · ` +
-    `${fiadasInfo.length} fiadas · ${contas.length.toLocaleString('pt-BR')} casas na rede · ` +
-    `${contasVisiveis.toLocaleString('pt-BR')} miçangas no desenho`;
+    `${P} pontos · ${P*2} linhas · ${bandas.length} fiadas · ` +
+    `${contas.length.toLocaleString('pt-BR')} casas · ` +
+    `${contasVisiveis.toLocaleString('pt-BR')} miçangas no desenho · ` +
+    `bojo ${bojo.toFixed(0)} cm`;
 }
 
-// --- carta 2D: a própria rede aberta ------------------------------------
+function assentar(){
+  agbe.position.set(0,0,0);
+  const caixa = new THREE.Box3().setFromObject(agbe);
+  agbe.position.y -= caixa.min.y;
+  agbe.position.x -= (caixa.min.x+caixa.max.x)/2;
+  agbe.position.z -= (caixa.min.z+caixa.max.z)/2;
+}
+
+// --- padrões -------------------------------------------------------------
+function padraoFoto(){
+  for (let l=0;l<MAPA_ROWS;l++) for (let c=0;c<MAPA_COLS;c++){
+    const u = (c+0.5)/MAPA_COLS, v = (l+0.5)/MAPA_ROWS;   // v=0 no topo da rede
+    const decote = 0.06 + 0.045*Math.cos(4*u*2*Math.PI);
+    if (v < decote) { mapa[mIdx(l,c)] = 0; continue; }
+    const d = (v - decote)*22 + 4.5*u;
+    mapa[mIdx(l,c)] = d < 1.2 ? 1 : d < 3.4 ? 2 : d < 5.6 ? 3 : 4;
+  }
+}
+function padraoListras(){
+  for (let l=0;l<MAPA_ROWS;l++) for (let c=0;c<MAPA_COLS;c++){
+    const v = (l+0.5)/MAPA_ROWS;
+    mapa[mIdx(l,c)] = v < 0.07 ? 0 : v < 0.22 ? 1 : v < 0.44 ? 2 : v < 0.66 ? 3 : 4;
+  }
+}
+const SALVO = 'agbe-mapa-v4';
+const guardado = localStorage.getItem(SALVO);
+if (guardado && guardado.length === mapa.length){
+  for (let k=0;k<mapa.length;k++) mapa[k] = Number(guardado[k]) || 0;
+} else padraoFoto();
+
+// --- quadriculado 2D -----------------------------------------------------
 const chart = document.getElementById('chart');
-const ESC = window.devicePixelRatio > 1 ? 2 : 1;
-const W = 516, H = 300;
-chart.width = W*ESC; chart.height = H*ESC;
-chart.style.width = W+'px'; chart.style.height = H+'px';
 const ctx = chart.getContext('2d');
-ctx.scale(ESC, ESC);
-let corAtual = 2;
+const CEL = 20, ESC = window.devicePixelRatio > 1 ? 2 : 1;
+let COLS = 0, ROWS = 0, filas = [], caminhos = new Map();
 
-function projetar(c){
-  const yTop = malha.aneis[0], yBot = malha.aneis[malha.aneis.length-1];
-  const u = (((c.ang % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI)) / (2*Math.PI);
-  return { px: 8 + u*(W-16), py: 10 + (yTop - c.y)/(yTop-yBot)*(H-24) };
+function montarQuadro(){
+  const { bandas, contas } = malha;
+  const rMax = Math.max(...perfilBase.map(p=>p[0]))*params.escala;
+  COLS = Math.max(12, Math.round((2*Math.PI*rMax)/MIC));
+  const inicioBanda = [];
+  let acc = 0;
+  for (const b of bandas){ inicioBanda[b.k] = acc; acc += b.n; }
+  ROWS = acc;
+  filas = Array.from({length: ROWS}, () => []);
+  for (const c of contas){
+    c.row = inicioBanda[c.banda] + (c.i-1);
+    c.x = c.u*COLS*CEL;                       // posição real, sem encaixar em coluna
+    c.py = c.row*CEL;
+    filas[c.row].push(c);
+  }
+  for (const f of filas) f.sort((a,b)=> a.x - b.x);
+  // caminho de cada linha da trança, para o traço diagonal
+  caminhos = new Map();
+  for (const c of contas){
+    if (!caminhos.has(c.linhaCol)) caminhos.set(c.linhaCol, []);
+    caminhos.get(c.linhaCol).push(c);
+  }
+  for (const p of caminhos.values()) p.sort((a,b)=> a.row - b.row);
+  chart.width = COLS*CEL*ESC; chart.height = ROWS*CEL*ESC;
+  chart.style.width = COLS*CEL+'px'; chart.style.height = ROWS*CEL+'px';
+  ctx.setTransform(ESC,0,0,ESC,0,0);
+  return inicioBanda;
 }
 
-function desenharCarta(){
-  ctx.clearRect(0,0,W,H);
-  const { PARES, passoAng, aneis, contas } = malha;
-  // linhas
-  ctx.strokeStyle = 'rgba(177,72,38,.55)'; ctx.lineWidth = 1;
-  for (let j=0;j<PARES;j++) for (const dir of [1,-1]){
-    let anterior = null;
-    for (let k=0;k<aneis.length;k++){
-      const p = projetar({ y: aneis[k], ang: j*passoAng + dir*k*passoAng*0.5 });
-      if (anterior && Math.abs(p.px - anterior.px) < W*0.5){
-        ctx.beginPath(); ctx.moveTo(anterior.px, anterior.py); ctx.lineTo(p.px, p.py); ctx.stroke();
-      }
-      anterior = p;
+let inicioBanda = [];
+function desenharQuadro(){
+  const L = COLS*CEL, A = ROWS*CEL;
+  ctx.clearRect(0,0,L,A);
+  ctx.fillStyle = '#bf7a2c'; ctx.fillRect(0,0,L,A);          // cabaça à mostra
+  ctx.strokeStyle = 'rgba(22,21,18,.10)'; ctx.lineWidth = 1;
+  for (let c=0;c<=COLS;c++){ ctx.beginPath(); ctx.moveTo(c*CEL,0); ctx.lineTo(c*CEL,A); ctx.stroke(); }
+  for (let r=0;r<=ROWS;r++){ ctx.beginPath(); ctx.moveTo(0,r*CEL); ctx.lineTo(L,r*CEL); ctx.stroke(); }
+
+  // as miçangas
+  for (const fila of filas) for (const c of fila){
+    const cor = lerMapa(c);
+    ctx.fillStyle = cor ? hexCss(PALETA[cor].hex) : '#efe0c8';
+    ctx.fillRect(c.x, c.py, CEL, CEL);
+    if (!cor){
+      ctx.strokeStyle = 'rgba(22,21,18,.3)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(c.x+4, c.py+4); ctx.lineTo(c.x+CEL-4, c.py+CEL-4); ctx.stroke();
+    }
+    ctx.strokeStyle = 'rgba(22,21,18,.45)'; ctx.lineWidth = 1;
+    ctx.strokeRect(c.x+0.5, c.py+0.5, CEL-1, CEL-1);
+  }
+
+  // as linhas da trança por cima, mostrando a diagonal que cada uma percorre
+  ctx.lineCap = 'round';
+  if (params.verTracado) for (const p of caminhos.values()){
+    for (let i=1;i<p.length;i++){
+      const a = p[i-1], b = p[i];
+      if (Math.abs(b.x - a.x) > L*0.5) continue;             // corte da volta
+      ctx.strokeStyle = 'rgba(22,21,18,.30)'; ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(a.x + CEL/2, a.py + CEL/2);
+      ctx.lineTo(b.x + CEL/2, b.py + CEL/2);
+      ctx.stroke();
+      ctx.strokeStyle = 'rgba(240,228,210,.85)'; ctx.lineWidth = 1.2;
+      ctx.stroke();
     }
   }
-  // miçangas
-  for (const c of contas){
-    const p = projetar(c), cor = corDaConta(c);
-    ctx.beginPath(); ctx.arc(p.px, p.py, c.tipo === 'nó' ? 3 : 2.6, 0, Math.PI*2);
-    if (cor){ ctx.fillStyle = hexCss(PALETA[cor].hex); ctx.fill();
-      ctx.strokeStyle = 'rgba(22,21,18,.5)'; ctx.lineWidth = 0.6; ctx.stroke(); }
-    else { ctx.strokeStyle = 'rgba(22,21,18,.3)'; ctx.lineWidth = 0.7; ctx.stroke(); }
+
+  // fim de cada fiada: filete cheio na altura dos nós
+  ctx.strokeStyle = 'rgba(22,21,18,.5)'; ctx.lineWidth = 2;
+  for (const b of malha.bandas){
+    const y = (inicioBanda[b.k] + b.n)*CEL;
+    ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(L,y); ctx.stroke();
   }
 }
 
 function desenharTabela(){
   const corpoT = document.querySelector('#tabela tbody'), rodape = document.querySelector('#tabela tfoot');
-  const info = malha.fiadasInfo;
-  corpoT.innerHTML = info.map((f,i) =>
-    `<tr><td>${i+1}ª</td><td>${f.n}</td><td>${f.segmentos}</td><td>${f.nos}</td><td>${f.total}</td></tr>`
-  ).join('');
-  const soma = info.reduce((s,f)=> s+f.total, 0);
-  rodape.innerHTML = `<tr><td>Total</td><td>—</td><td>${info.reduce((s,f)=>s+f.segmentos,0)}</td>` +
-    `<td>${info.reduce((s,f)=>s+f.nos,0)}</td><td>${soma.toLocaleString('pt-BR')}</td></tr>`;
-  document.getElementById('eixoMax').textContent =
-    `${malha.PARES*2} linhas · ${info.length} fiadas`;
+  const { P, bandas } = malha;
+  const pintadas = bandas.map(b => {
+    let t = 0;
+    for (let i=0;i<b.n;i++)
+      for (const conta of (filas[inicioBanda[b.k]+i] || []))
+        if (lerMapa(conta)) t++;
+    return t;
+  });
+  corpoT.innerHTML = bandas.map((b,i) =>
+    `<tr><td>${i+1}ª</td><td><span class="passo">` +
+    `<button type="button" data-fiada="${b.k}" data-d="-1">−</button>` +
+    `<span>${b.n}</span>` +
+    `<button type="button" data-fiada="${b.k}" data-d="1">+</button></span></td>` +
+    `<td>${P*2}</td><td>${b.n*P*2}</td><td>${pintadas[i]}</td></tr>`).join('');
+  const casas = bandas.reduce((s,b)=> s + b.n*P*2, 0);
+  rodape.innerHTML = `<tr><td>Total</td><td>—</td><td>${P*2}</td>` +
+    `<td>${casas.toLocaleString('pt-BR')}</td>` +
+    `<td>${pintadas.reduce((a,b)=>a+b,0).toLocaleString('pt-BR')}</td></tr>`;
+  corpoT.querySelectorAll('button[data-fiada]').forEach(b => b.addEventListener('click', () => {
+    const k = Number(b.dataset.fiada), d = Number(b.dataset.d);
+    const atual = nPorFiada[k] ?? (malha.bandas[k]?.n ?? 1);
+    nPorFiada[k] = Math.max(1, Math.min(8, atual + d));
+    refazerTudo();
+  }));
 }
 
 function refazerTudo(){
+  construirCabaca();
   malha = montarMalha();
+  inicioBanda = montarQuadro();
   construirRede();
-  desenharCarta();
+  assentar();
+  desenharQuadro();
   desenharTabela();
 }
 
 let repintar;
 function pintou(){
-  desenharCarta();
+  desenharQuadro();
+  desenharTabela();
   localStorage.setItem(SALVO, Array.from(mapa).join(''));
   clearTimeout(repintar);
   repintar = setTimeout(construirRede, 70);
 }
 
-let pintando = false, valorPincel = 0;
-function contaMaisProxima(ev){
+let corAtual = 2, pintando = false;
+function celulaDoEvento(ev){
   const r = chart.getBoundingClientRect();
-  const mx = ev.clientX - r.left, my = ev.clientY - r.top;
-  let melhor = null, dist = 49;
-  for (const c of malha.contas){
-    const p = projetar(c);
-    const d = (p.px-mx)**2 + (p.py-my)**2;
-    if (d < dist){ dist = d; melhor = c; }
-  }
-  return melhor;
+  const px = ev.clientX - r.left, py = ev.clientY - r.top;
+  const row = Math.floor(py/CEL);
+  const fila = filas[row];
+  if (!fila) return null;
+  for (const c of fila) if (px >= c.x && px <= c.x + CEL) return c;
+  return null;
 }
 function pintar(ev){
-  const c = contaMaisProxima(ev); if (!c) return;
-  if (ev.shiftKey){
-    const cel = celulaDe(c.y, c.ang);
-    for (let col=0;col<MAPA_COLS;col++) mapa[mIdx(cel.l, col)] = valorPincel;
-  } else {
-    const cel = celulaDe(c.y, c.ang);
-    mapa[mIdx(cel.l, cel.c)] = valorPincel;
-  }
+  const conta = celulaDoEvento(ev);
+  if (!conta) return;
+  pintarMapa(conta, corAtual);
   pintou();
 }
 chart.addEventListener('pointerdown', (ev) => {
   ev.preventDefault(); chart.setPointerCapture(ev.pointerId);
-  valorPincel = (ev.button === 2 || ev.altKey) ? 0 : corAtual;
   pintando = true; pintar(ev);
 });
 chart.addEventListener('pointermove', (ev) => { if (pintando) pintar(ev); });
@@ -470,32 +574,48 @@ document.querySelectorAll('button.acao').forEach(b => b.addEventListener('click'
   const a = b.dataset.acao;
   if (a === 'foto') { padraoFoto(); pintou(); }
   if (a === 'listras') { padraoListras(); pintou(); }
+  if (a === 'cheio') { mapa.fill(corAtual || 2); pintou(); }
   if (a === 'limpar') { mapa.fill(0); pintou(); }
   if (a === 'png') {
     const link = document.createElement('a');
-    link.download = 'carta-micangas-agbe.png';
+    link.download = 'mapa-micangas-agbe.png';
     link.href = chart.toDataURL('image/png');
     link.click();
   }
 }));
 
 let recalcular;
-const esp = document.getElementById('esp'), outEsp = document.getElementById('outEsp');
-esp.addEventListener('input', () => {
-  params.linhas = Number(esp.value);
-  outEsp.textContent = `${esp.value} linhas`;
-  clearTimeout(recalcular); recalcular = setTimeout(refazerTudo, 90);
+const adiar = () => { clearTimeout(recalcular); recalcular = setTimeout(refazerTudo, 90); };
+const elPontos = document.getElementById('pontos'), outPontos = document.getElementById('outPontos');
+elPontos.addEventListener('input', () => {
+  params.pontos = Number(elPontos.value);
+  outPontos.textContent = `${params.pontos} pontos · ${params.pontos*2} linhas`;
+  adiar();
+});
+const elTam = document.getElementById('tam'), outTam = document.getElementById('outTam');
+elTam.addEventListener('input', () => {
+  params.escala = Number(elTam.value)/100;
+  outTam.textContent = `${(0.294*params.escala*100).toFixed(0)} cm de bojo`;
+  adiar();
 });
 document.getElementById('verLinhas').addEventListener('change', (ev) => {
   params.verLinhas = ev.target.checked;
   clearTimeout(recalcular); recalcular = setTimeout(construirRede, 60);
 });
 
+document.getElementById('verTracado').addEventListener('change', (ev) => {
+  params.verTracado = ev.target.checked;
+  desenharQuadro();
+});
+
+document.querySelectorAll('#abas button').forEach(b => b.addEventListener('click', () => {
+  document.body.dataset.aba = b.dataset.aba;
+  document.querySelectorAll('#abas button').forEach(o =>
+    o.setAttribute('aria-pressed', String(o === b)));
+  window.dispatchEvent(new Event('resize'));
+}));
+
 refazerTudo();
-const caixa = new THREE.Box3().setFromObject(agbe);
-agbe.position.y -= caixa.min.y;
-agbe.position.x -= (caixa.min.x+caixa.max.x)/2;
-agbe.position.z -= (caixa.min.z+caixa.max.z)/2;
 stage.setObject(agbe);
 </script>
 </body>
