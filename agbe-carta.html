@@ -688,7 +688,12 @@ function celulaDoEvento(ev){
   }
   return melhor;
 }
+const dentroDoMapa = (ev) => {
+  const r = quadro.getBoundingClientRect();
+  return ev.clientX < r.left + quadro.clientWidth && ev.clientY < r.top + quadro.clientHeight;
+};
 function pintar(ev){
+  if (!dentroDoMapa(ev)) return;                // calha das barras de rolagem
   const conta = celulaDoEvento(ev);
   if (!conta) return;
   pintarMapa(conta, corAtual);
@@ -707,7 +712,8 @@ quadro.addEventListener('pointerdown', (ev) => {
       { try { if (quadro.hasPointerCapture(id)) quadro.releasePointerCapture(id); } catch (e) {} }
     return;
   }
-  pintando = true; pintar(ev);
+  pintando = dentroDoMapa(ev);
+  if (pintando) pintar(ev);
   try { quadro.setPointerCapture(ev.pointerId); } catch (e) {}
 });
 quadro.addEventListener('pointermove', (ev) => {
