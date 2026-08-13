@@ -31,8 +31,16 @@
   #painel{width:580px;flex:none;border-right:1px solid #161512;display:block;
     padding:20px;overflow:auto;background:#f0e2cd;-webkit-overflow-scrolling:touch}
   #painel > *{flex:none}
+  #visor{flex:1;position:relative;min-width:0;min-height:0}
   three-d-stage:not(:defined){visibility:hidden}
-  three-d-stage{display:block;flex:1;height:100dvh}
+  three-d-stage{display:block;width:100%;height:100%}
+  #girarVisor{position:absolute;left:16px;top:16px;z-index:5;display:flex;gap:8px;align-items:center;
+    font:inherit;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    padding:10px 12px;border:1px solid #161512;background:#ead6bf;color:#161512;cursor:pointer;
+    box-shadow:3px 3px 0 #16151230}
+  #girarVisor:hover{background:#d3ad84}
+  #girarVisor:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #16151230}
+  #girarVisor input{accent-color:#b14826;width:16px;height:16px;margin:0}
   .eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin:0 0 6px}
   h1{font-size:22px;line-height:1.2;margin:0 0 4px;letter-spacing:.02em}
   p.ajuda{font-size:12px;line-height:1.55;margin:0 0 14px;color:#161512b8}
@@ -46,8 +54,17 @@
   .chk input{accent-color:#b14826;width:18px;height:18px}
   .dado{font-size:11px;line-height:1.6;color:#161512b0;margin:0}
   .quadro{border:1px solid #161512;box-shadow:3px 3px 0 #16151230;background:#ead6bf;
-    overflow:auto;max-height:52vh;min-height:220px;touch-action:none;-webkit-overflow-scrolling:touch}
+    overflow:scroll;max-height:52vh;min-height:220px;touch-action:none;-webkit-overflow-scrolling:touch;
+    scrollbar-width:auto;scrollbar-color:#161512 #e2cdb0}
+  .quadro::-webkit-scrollbar{width:14px;height:14px;background:#e2cdb0}
+  .quadro::-webkit-scrollbar-track{background:#e2cdb0;border-left:1px solid #16151230;border-top:1px solid #16151230}
+  .quadro::-webkit-scrollbar-thumb{background:#161512;border:3px solid #e2cdb0}
+  .quadro::-webkit-scrollbar-thumb:active{background:#b14826}
+  .quadro::-webkit-scrollbar-corner{background:#e2cdb0}
   canvas#chart{display:block;touch-action:none}
+  summary{font-size:11px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;
+    padding:10px 0;border-top:1px solid #16151230;margin-top:12px}
+  input[type=color]{width:52px;height:44px;padding:0;border:1px solid #161512;background:#ead6bf;cursor:pointer}
   .paleta{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
   .swatch{width:52px;height:44px;border:1px solid #161512;cursor:pointer;position:relative;padding:0}
   .swatch[aria-pressed="true"]{outline:2px solid #376182;outline-offset:2px}
@@ -74,15 +91,22 @@
   a{color:#b14826}
   a:hover{color:#993d20}
   @media (max-width:900px){
-    #app{flex-direction:column;height:100dvh}
-    #abas{display:flex;flex:none;border-bottom:1px solid #161512;background:#e2cdb0}
+    body{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+    #app{flex:1;min-height:0;height:auto;flex-direction:column}
+    #abas{position:sticky;top:0;z-index:8;display:flex;flex:none;border-bottom:1px solid #161512;background:#e2cdb0}
     #abas button{flex:1;font:inherit;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
       padding:14px 8px;border:0;border-right:1px solid #161512;background:transparent;color:#161512;cursor:pointer}
     #abas button:last-child{border-right:0}
     #abas button[aria-pressed="true"]{background:#161512;color:#ead6bf}
-    #painel{width:100%;flex:1;border-right:0;min-height:0}
+  #visor{width:100%;flex:1}
+    #painel{width:100%;flex:1;border-right:0;min-height:0;padding-right:78px}
+    #paleta{position:fixed;right:0;top:0;bottom:0;width:66px;margin:0;padding:8px 7px;gap:6px;
+      flex-direction:column;flex-wrap:nowrap;overflow:auto;z-index:7;
+      background:#e2cdb0;border-left:1px solid #161512;box-shadow:-3px 0 0 #16151218}
+    #paleta .swatch{width:52px;height:44px;flex:none}
+    body[data-aba="modelo"] #paleta{display:none}
     three-d-stage{flex:1;height:auto;min-height:0}
-    body[data-aba="mapa"] three-d-stage{display:none}
+    body[data-aba="mapa"] #visor{display:none}
     body[data-aba="modelo"] #painel{display:none}
     .quadro{max-height:70dvh}
   }
@@ -119,19 +143,34 @@
       Onde a linha passa, o quadrado é editável — e como a linha corre em diagonal, o desenho das
       diagonais aparece sozinho. Os quadrados cor de cabaça são vão aberto: ali não há linha, não há
       miçanga e não se pinta. Quadrado vazado é linha sem miçanga.</p>
-    <div class="quadro"><canvas id="chart"></canvas></div>
+    <div class="quadro" id="quadro"><canvas id="chart"></canvas></div>
+    <p class="ajuda" style="margin:8px 0 0">Um dedo pinta · dois dedos arrastam o mapa · as barras de
+      rolagem embaixo e na lateral também movem.</p>
     <label class="chk" style="margin-top:10px"><input type="checkbox" id="verTracado" checked> mostrar o traçado das linhas sobre o mapa</label>
     <div class="acoes" style="margin-top:8px">
-      <button class="acao" data-acao="foto">Padrão da foto</button>
+      <button class="acao" data-acao="foto">Exemplo</button>
       <button class="acao" data-acao="listras">Listras retas</button>
       <button class="acao" data-acao="cheio">Preencher</button>
       <button class="acao" data-acao="limpar">Limpar</button>
       <button class="acao" data-acao="png">Baixar mapa</button>
+      <button class="acao" data-acao="exportar">Exportar projeto</button>
+      <button class="acao" data-acao="importar">Importar projeto</button>
+      <input type="file" id="arquivo" accept=".agbe,.json,application/json" hidden>
     </div>
 
     <div class="filete"></div>
     <p class="eyebrow">Cores</p>
     <div class="paleta" id="paleta"></div>
+    <details id="maisCores">
+      <summary>Mais cores</summary>
+      <p class="ajuda" style="margin:10px 0 6px">Ligue outras cores da paleta Bongarbit ou acrescente
+        uma cor sua à caixa de miçangas.</p>
+      <div class="paleta" id="reserva"></div>
+      <div class="acoes">
+        <input type="color" id="novaCor" value="#7a9e9f" aria-label="nova cor">
+        <button class="acao" id="addCor">Acrescentar cor</button>
+      </div>
+    </details>
     <p class="ajuda" style="margin-top:10px">Toque ou arraste para pintar · toque com a cor
       <em>vazio</em> para tirar a miçanga · o desenho fica salvo neste navegador.</p>
 
@@ -141,11 +180,14 @@
       rede se refaz.</p>
     <div class="rolagem">
       <table id="tabela"><thead><tr>
-        <th>Fiada</th><th>Entre nós</th><th>Linhas</th><th>Casas</th><th>Pintadas</th>
+        <th>Fiada</th><th>Miçangas entre nós</th><th>Casas</th><th>Quantidade de miçangas</th>
       </tr></thead><tbody></tbody><tfoot></tfoot></table>
     </div>
   </aside>
-  <three-d-stage name="agbe" background="#ead6bf"></three-d-stage>
+  <div id="visor">
+    <label id="girarVisor"><input type="checkbox" id="girar" checked> girando</label>
+    <three-d-stage name="agbe" background="#ead6bf" autorotate></three-d-stage>
+  </div>
 </div>
 <script src="./three-d-stage.js"></script>
 <script type="module">
@@ -155,26 +197,50 @@ const { THREE } = await stage.ready;
 const MIC = 0.010, rC = MIC/2, folga = rC*0.92;
 
 const PALETA = [
-  { id:0, nome:'vazio',     hex:null },
-  { id:1, nome:'papel',     hex:0xf0e4d2 },
-  { id:2, nome:'ocre',      hex:0xd4752d },
-  { id:3, nome:'amarelo',   hex:0xd0962d },
-  { id:4, nome:'terracota', hex:0xb14826 },
-  { id:5, nome:'baobá',     hex:0x31671f },
-  { id:6, nome:'azul',      hex:0x376182 },
-  { id:7, nome:'grafite',   hex:0x161512 },
-  { id:8, nome:'marrom',    hex:0x6b3c23 }
+  { id:0, nome:'vazio',     hex:null,     ativa:true },
+  { id:1, nome:'branco',    hex:0xf0e4d2, ativa:true },
+  { id:2, nome:'laranja',   hex:0xd4752d, ativa:true },
+  { id:3, nome:'amarelo',   hex:0xd0962d, ativa:true },
+  { id:8, nome:'marrom',    hex:0x6b3c23, ativa:true },
+  { id:4, nome:'terracota', hex:0xb14826, ativa:false },
+  { id:5, nome:'baobá',     hex:0x31671f, ativa:false },
+  { id:6, nome:'azul',      hex:0x376182, ativa:false },
+  { id:7, nome:'grafite',   hex:0x161512, ativa:false }
 ];
+const PORID = new Map(PALETA.map(p => [p.id, p]));
+const CORES_SALVAS = 'agbe-paleta-v1';
+try {
+  const g = JSON.parse(localStorage.getItem(CORES_SALVAS) || 'null');
+  if (g){
+    for (const p of PALETA) if (p.id) p.ativa = g.ativas.includes(p.id);
+    for (const c of (g.extras || [])){
+      const p = { id:c.id, nome:c.nome, hex:c.hex, ativa:true, extra:true };
+      PALETA.push(p); PORID.set(p.id, p);
+    }
+  }
+} catch (e) { /* paleta padrão */ }
+function guardarPaleta(){
+  localStorage.setItem(CORES_SALVAS, JSON.stringify({
+    ativas: PALETA.filter(p => p.id && p.ativa).map(p => p.id),
+    extras: PALETA.filter(p => p.extra).map(p => ({ id:p.id, nome:p.nome, hex:p.hex }))
+  }));
+}
 const hexCss = (h) => '#' + h.toString(16).padStart(6,'0');
 
 const mat = {
   cabaca: new THREE.MeshStandardMaterial({ name:'cabaca', color:0xc98131, roughness:0.32, metalness:0.08, side:THREE.DoubleSide }),
   boca:   new THREE.MeshStandardMaterial({ name:'cabaca_boca', color:0x4a2a15, roughness:0.85, side:THREE.DoubleSide }),
-  linha:  new THREE.MeshStandardMaterial({ name:'linha_algodao', color:0xb14826, roughness:0.92 }),
-  tranca: new THREE.MeshStandardMaterial({ name:'tranca', color:0x993d20, roughness:0.9 })
+  linha:  new THREE.MeshStandardMaterial({ name:'linha_algodao', color:0xead6bf, roughness:0.92 }),
+  tranca: new THREE.MeshStandardMaterial({ name:'tranca', color:0xd3ad84, roughness:0.9 })
 };
 for (const p of PALETA) if (p.hex !== null)
   mat[p.id] = new THREE.MeshStandardMaterial({ name:`micanga_${p.nome}`, color:p.hex, roughness:0.35, metalness:0.05 });
+const material = (id) => mat[id] ||
+  (mat[id] = new THREE.MeshStandardMaterial({
+    name:`micanga_${PORID.get(id)?.nome || id}`,
+    color: PORID.get(id)?.hex ?? 0xd4752d, roughness:0.35, metalness:0.05 }));
+const hexDe = (id) => PORID.get(id)?.hex ?? 0xd4752d;
+const nomeDe = (id) => PORID.get(id)?.nome || `cor ${id}`;
 
 const perfilBase = [
   [0.000, 0.000],[0.030, 0.0012],[0.072, 0.008],[0.108, 0.028],[0.132, 0.055],[0.144, 0.086],
@@ -356,8 +422,8 @@ function construirRede(){
       m4.compose(noPonto(c.y, c.ang, folga), q.setFromAxisAngle(eixoY, -c.ang), escConta)));
   }
   for (const [cor, lista] of Object.entries(baldes)){
-    const mm = new THREE.Mesh(fundir(lista), mat[Number(cor)]);
-    mm.name = `micangas_${PALETA[Number(cor)].nome}`;
+    const mm = new THREE.Mesh(fundir(lista), material(Number(cor)));
+    mm.name = `micangas_${nomeDe(Number(cor))}`;
     mm.castShadow = mm.receiveShadow = true;
     rede.add(mm);
   }
@@ -448,7 +514,7 @@ function desenharQuadro(){
   // as miçangas
   for (const fila of filas) for (const c of fila){
     const cor = lerMapa(c);
-    ctx.fillStyle = cor ? hexCss(PALETA[cor].hex) : '#efe0c8';
+    ctx.fillStyle = cor ? hexCss(hexDe(cor)) : '#efe0c8';
     ctx.fillRect(c.x, c.py, CEL, CEL);
     if (!cor){
       ctx.strokeStyle = 'rgba(22,21,18,.3)'; ctx.lineWidth = 1;
@@ -497,9 +563,9 @@ function desenharTabela(){
     `<button type="button" data-fiada="${b.k}" data-d="-1">−</button>` +
     `<span>${b.n}</span>` +
     `<button type="button" data-fiada="${b.k}" data-d="1">+</button></span></td>` +
-    `<td>${P*2}</td><td>${b.n*P*2}</td><td>${pintadas[i]}</td></tr>`).join('');
+    `<td>${b.n*P*2}</td><td>${pintadas[i]}</td></tr>`).join('');
   const casas = bandas.reduce((s,b)=> s + b.n*P*2, 0);
-  rodape.innerHTML = `<tr><td>Total</td><td>—</td><td>${P*2}</td>` +
+  rodape.innerHTML = `<tr><td>Total</td><td>—</td>` +
     `<td>${casas.toLocaleString('pt-BR')}</td>` +
     `<td>${pintadas.reduce((a,b)=>a+b,0).toLocaleString('pt-BR')}</td></tr>`;
   corpoT.querySelectorAll('button[data-fiada]').forEach(b => b.addEventListener('click', () => {
@@ -530,6 +596,15 @@ function pintou(){
 }
 
 let corAtual = 2, pintando = false;
+const quadro = document.getElementById('quadro');
+const toques = new Map();
+let arrastando = false, ultimoCentro = null;
+
+function centroDosToques(){
+  let x = 0, y = 0;
+  for (const p of toques.values()){ x += p.x; y += p.y; }
+  return { x: x/toques.size, y: y/toques.size };
+}
 function celulaDoEvento(ev){
   const r = chart.getBoundingClientRect();
   const px = ev.clientX - r.left, py = ev.clientY - r.top;
@@ -546,29 +621,87 @@ function pintar(ev){
   pintou();
 }
 chart.addEventListener('pointerdown', (ev) => {
-  ev.preventDefault(); chart.setPointerCapture(ev.pointerId);
+  ev.preventDefault();
+  toques.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+  if (toques.size >= 2){                       // dois dedos: arrasta o mapa
+    pintando = false;
+    arrastando = true;
+    ultimoCentro = centroDosToques();
+    for (const id of toques.keys())
+      if (chart.hasPointerCapture(id)) chart.releasePointerCapture(id);
+    return;
+  }
+  chart.setPointerCapture(ev.pointerId);
   pintando = true; pintar(ev);
 });
-chart.addEventListener('pointermove', (ev) => { if (pintando) pintar(ev); });
+chart.addEventListener('pointermove', (ev) => {
+  if (toques.has(ev.pointerId)) toques.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+  if (arrastando && toques.size >= 2){
+    const c = centroDosToques();
+    quadro.scrollLeft -= c.x - ultimoCentro.x;
+    quadro.scrollTop  -= c.y - ultimoCentro.y;
+    ultimoCentro = c;
+    return;
+  }
+  if (pintando) pintar(ev);
+});
+function soltarToque(ev){
+  toques.delete(ev.pointerId);
+  if (toques.size < 2){ arrastando = false; ultimoCentro = null; }
+  if (toques.size === 0) pintando = false;
+}
+chart.addEventListener('pointerup', soltarToque);
+chart.addEventListener('pointercancel', soltarToque);
 addEventListener('pointerup', () => { pintando = false; });
 chart.addEventListener('contextmenu', (ev) => ev.preventDefault());
 
 const paleta = document.getElementById('paleta');
-for (const p of PALETA){
+const reserva = document.getElementById('reserva');
+
+function botaoCor(p, ativo){
   const b = document.createElement('button');
   b.className = 'swatch'; b.type = 'button';
   b.style.background = p.hex === null
     ? 'repeating-linear-gradient(45deg,#e2cdb0 0 5px,#d3ad84 5px 10px)'
     : hexCss(p.hex);
   b.title = p.nome;
-  b.setAttribute('aria-pressed', String(p.id === corAtual));
-  b.innerHTML = `<span style="color:${p.id===7?'#ead6bf':'#161512aa'}">${p.nome}</span>`;
-  b.addEventListener('click', () => {
-    corAtual = p.id;
-    paleta.querySelectorAll('.swatch').forEach((s,k)=> s.setAttribute('aria-pressed', String(k===p.id)));
-  });
-  paleta.appendChild(b);
+  b.dataset.cor = p.id;
+  b.setAttribute('aria-pressed', String(ativo));
+  const claro = p.hex !== null && ((p.hex >> 16) + ((p.hex >> 8) & 255) + (p.hex & 255)) < 300;
+  b.innerHTML = `<span style="color:${claro ? '#ead6bf' : '#161512aa'}">${p.nome}</span>`;
+  return b;
 }
+
+function desenharPaleta(){
+  paleta.innerHTML = '';
+  for (const p of PALETA){
+    if (p.id !== 0 && !p.ativa) continue;
+    const b = botaoCor(p, p.id === corAtual);
+    b.addEventListener('click', () => { corAtual = p.id; desenharPaleta(); });
+    paleta.appendChild(b);
+  }
+  reserva.innerHTML = '';
+  for (const p of PALETA){
+    if (p.id === 0 || p.ativa) continue;
+    const b = botaoCor(p, false);
+    b.addEventListener('click', () => { p.ativa = true; guardarPaleta(); desenharPaleta(); });
+    reserva.appendChild(b);
+  }
+  if (!reserva.children.length)
+    reserva.innerHTML = '<p class="ajuda" style="margin:0">Todas as cores da paleta já estão na caixa.</p>';
+}
+desenharPaleta();
+
+document.getElementById('addCor').addEventListener('click', () => {
+  const valor = document.getElementById('novaCor').value;
+  const hex = parseInt(valor.slice(1), 16);
+  const id = Math.max(...PALETA.map(p => p.id)) + 1;
+  if (id > 255) return;
+  const p = { id, nome: valor.toUpperCase(), hex, ativa:true, extra:true };
+  PALETA.push(p); PORID.set(id, p);
+  corAtual = id;
+  guardarPaleta(); desenharPaleta();
+});
 
 document.querySelectorAll('button.acao').forEach(b => b.addEventListener('click', () => {
   const a = b.dataset.acao;
@@ -582,7 +715,77 @@ document.querySelectorAll('button.acao').forEach(b => b.addEventListener('click'
     link.href = chart.toDataURL('image/png');
     link.click();
   }
+  if (a === 'exportar') exportarProjeto();
+  if (a === 'importar') document.getElementById('arquivo').click();
 }));
+
+// --- exportar e importar o projeto --------------------------------------
+function comprimir(arr){                    // sequências iguais viram "cor xn"
+  const out = [];
+  let atual = arr[0], n = 1;
+  for (let i=1;i<arr.length;i++){
+    if (arr[i] === atual) n++;
+    else { out.push(atual + 'x' + n); atual = arr[i]; n = 1; }
+  }
+  out.push(atual + 'x' + n);
+  return out.join(',');
+}
+function descomprimir(txt, destino){
+  let i = 0;
+  for (const par of txt.split(',')){
+    const [cor, n] = par.split('x').map(Number);
+    for (let k=0;k<n && i<destino.length;k++) destino[i++] = cor;
+  }
+}
+
+function exportarProjeto(){
+  const projeto = {
+    formato: 'agbe-mapa', versao: 1, data: new Date().toISOString(),
+    micangaMm: MIC*1000,
+    trancado: { pontos: params.pontos, escala: params.escala,
+      micangasPorFiada: malha.bandas.map(b => nPorFiada[b.k] ?? b.n) },
+    paleta: PALETA.filter(p => p.id).map(p => ({ id:p.id, nome:p.nome, hex:p.hex, ativa:!!p.ativa, extra:!!p.extra })),
+    mapa: { linhas: MAPA_ROWS, colunas: MAPA_COLS, dados: comprimir(Array.from(mapa)) }
+  };
+  const blob = new Blob([JSON.stringify(projeto, null, 1)], { type:'application/json' });
+  const link = document.createElement('a');
+  link.download = `agbe-${new Date().toISOString().slice(0,10)}.agbe`;
+  link.href = URL.createObjectURL(blob);
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 2000);
+}
+
+document.getElementById('arquivo').addEventListener('change', async (ev) => {
+  const f = ev.target.files?.[0];
+  if (!f) return;
+  try {
+    const p = JSON.parse(await f.text());
+    if (p.formato !== 'agbe-mapa') throw new Error('formato');
+    if (p.mapa?.linhas === MAPA_ROWS && p.mapa?.colunas === MAPA_COLS)
+      descomprimir(p.mapa.dados, mapa);
+    if (p.paleta){
+      PALETA.length = 1; PORID.clear(); PORID.set(0, PALETA[0]);
+      for (const c of p.paleta){ PALETA.push(c); PORID.set(c.id, c); }
+      corAtual = PALETA.find(c => c.id && c.ativa)?.id ?? 0;
+      guardarPaleta(); desenharPaleta();
+    }
+    if (p.trancado){
+      params.pontos = p.trancado.pontos ?? params.pontos;
+      params.escala = p.trancado.escala ?? params.escala;
+      elPontos.value = params.pontos;
+      outPontos.textContent = `${params.pontos} pontos · ${params.pontos*2} linhas`;
+      elTam.value = Math.round(params.escala*100);
+      outTam.textContent = `${(0.294*params.escala*100).toFixed(0)} cm de bojo`;
+      nPorFiada.length = 0;
+      (p.trancado.micangasPorFiada || []).forEach((n,k) => { nPorFiada[k] = n; });
+    }
+    localStorage.setItem(SALVO, Array.from(mapa).join(''));
+    refazerTudo();
+  } catch (e) {
+    alert('Não consegui ler este arquivo de projeto.');
+  }
+  ev.target.value = '';
+});
 
 let recalcular;
 const adiar = () => { clearTimeout(recalcular); recalcular = setTimeout(refazerTudo, 90); };
@@ -601,6 +804,14 @@ elTam.addEventListener('input', () => {
 document.getElementById('verLinhas').addEventListener('change', (ev) => {
   params.verLinhas = ev.target.checked;
   clearTimeout(recalcular); recalcular = setTimeout(construirRede, 60);
+});
+
+document.getElementById('girar').addEventListener('change', (ev) => {
+  if (stage._controls) stage._controls.autoRotate = ev.target.checked;
+});
+// mexer na cabaça com o dedo pára o giro; o seletor volta a refletir isso
+stage._controls?.addEventListener('start', () => {
+  document.getElementById('girar').checked = false;
 });
 
 document.getElementById('verTracado').addEventListener('change', (ev) => {
