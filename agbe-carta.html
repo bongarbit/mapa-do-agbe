@@ -61,6 +61,7 @@
   .quadro::-webkit-scrollbar-thumb{background:#161512;border:3px solid #e2cdb0}
   .quadro::-webkit-scrollbar-thumb:active{background:#b14826}
   .quadro::-webkit-scrollbar-corner{background:#e2cdb0}
+  #verTudo{display:none}
   .zoom{display:flex;gap:6px;align-items:center;margin:0 0 8px;font-size:11px;letter-spacing:.14em}
   .zoom button{font:inherit;font-size:13px;min-width:38px;height:38px;padding:0 10px;
     border:1px solid #161512;background:#ead6bf;color:#161512;cursor:pointer;
@@ -118,7 +119,14 @@
     .quadro{max-height:none;height:100%;min-height:0;flex:1}
     #painel{display:flex;flex-direction:column}
     #mapaSec{display:flex;flex-direction:column;height:100%;min-height:0}
-    #mapaSec .tituloMapa,#mapaSec .dicaMapa{display:none}
+    #mapaSec .tituloMapa,#mapaSec .dicaMapa,#mapaSec .zoom{display:none}
+    #paleta{padding-bottom:56px}
+    #verTudo{display:block;position:fixed;right:0;bottom:0;width:66px;height:48px;z-index:8;
+      font:inherit;font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+      border:0;border-top:1px solid #161512;border-left:1px solid #161512;
+      background:#161512;color:#ead6bf;cursor:pointer}
+    body[data-aba="mapa"] #verTudo{display:block}
+    body[data-aba="ajustes"] #verTudo,body[data-aba="modelo"] #verTudo{display:none}
     body[data-aba="mapa"] #ajustes{display:none}
     body[data-aba="ajustes"] #mapaSec{display:none}
     body[data-aba="ajustes"] #paleta{display:none}
@@ -128,9 +136,9 @@
 </head>
 <body data-aba="mapa">
 <div id="abas">
+  <button type="button" data-aba="ajustes" aria-pressed="false">Ajustes</button>
   <button type="button" data-aba="mapa" aria-pressed="true">Mapa</button>
   <button type="button" data-aba="modelo" aria-pressed="false">Modelo 3D</button>
-  <button type="button" data-aba="ajustes" aria-pressed="false">Ajustes</button>
 </div>
 <div id="app">
   <aside id="painel">
@@ -209,6 +217,7 @@
     <p class="ajuda dicaMapa">Um dedo pinta · dois dedos arrastam e dão zoom de pinça · as barras de
       rolagem também movem.</p>
     <div class="paleta" id="paleta"></div>
+    <button type="button" id="verTudo">Ver tudo</button>
    </section>
   </aside>
   <div id="visor">
@@ -661,10 +670,21 @@ function celulaDoEvento(ev){
   const r = chart.getBoundingClientRect();
   const px = (ev.clientX - r.left)/zoom, py = (ev.clientY - r.top)/zoom;
   const row = Math.floor(py/CEL);
-  const fila = filas[row];
-  if (!fila) return null;
-  for (const c of fila) if (px >= c.x && px <= c.x + CEL) return c;
-  return null;
+  for (const rr of [row, row-1, row+1]){        // toque grosso: pega a miçanga mais próxima
+    const fila = filas[rr];
+    if (!fila) continue;
+    for (const c of fila) if (px >= c.x && px <= c.x + CEL && rr === row) return c;
+  }
+  let melhor = null, dist = (CEL*1.4)**2;
+  for (const rr of [row-1, row, row+1]){
+    const fila = filas[rr];
+    if (!fila) continue;
+    for (const c of fila){
+      const d = (c.x + CEL/2 - px)**2 + (c.py + CEL/2 - py)**2;
+      if (d < dist){ dist = d; melhor = c; }
+    }
+  }
+  return melhor;
 }
 function pintar(ev){
   const conta = celulaDoEvento(ev);
@@ -716,6 +736,7 @@ document.querySelectorAll('.zoom button').forEach(b => b.addEventListener('click
   const d = Number(b.dataset.zoom);
   if (d === 0) caber(); else aplicarZoom(zoom*(d > 0 ? 1.25 : 0.8));
 }));
+document.getElementById('verTudo').addEventListener('click', caber);
 
 const paleta = document.getElementById('paleta');
 const reserva = document.getElementById('reserva');
@@ -896,7 +917,7 @@ document.querySelectorAll('#abas button').forEach(b => b.addEventListener('click
 }));
 
 refazerTudo();
-if (innerWidth <= 900) requestAnimationFrame(caber);
+if (innerWidth <= 900) requestAnimationFrame(() => aplicarZoom(1, { x: 0, y: 0 }));
 stage.setObject(agbe);
 </script>
 </body>
