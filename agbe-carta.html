@@ -107,7 +107,8 @@
     #abas button:last-child{border-right:0}
     #abas button[aria-pressed="true"]{background:#161512;color:#ead6bf}
   #visor{width:100%;flex:1;min-height:0}
-    #painel{width:100%;flex:1;border-right:0;min-height:0;padding-right:78px}
+    #painel{width:100%;flex:1;border-right:0;min-height:0;padding-right:20px}
+    body[data-aba="mapa"] #painel{padding-right:78px}
     #paleta{position:fixed;right:0;top:var(--abas,50px);bottom:0;width:66px;margin:0;padding:8px 7px;gap:6px;
       flex-direction:column;flex-wrap:nowrap;overflow:auto;z-index:7;
       background:#e2cdb0;border-left:1px solid #161512;box-shadow:-3px 0 0 #16151218}
@@ -115,6 +116,7 @@
     body[data-aba="modelo"] #paleta{display:none}
     three-d-stage{width:100%;height:100%;min-height:0}
     body[data-aba="mapa"] #visor{display:none}
+    body[data-aba="ajustes"] #visor{display:none}
     body[data-aba="modelo"] #painel{display:none}
     .quadro{max-height:none;height:100%;min-height:0;flex:1}
     #painel{display:flex;flex-direction:column}
@@ -692,8 +694,9 @@ function pintar(ev){
   pintarMapa(conta, corAtual);
   pintou();
 }
-chart.addEventListener('pointerdown', (ev) => {
+quadro.addEventListener('pointerdown', (ev) => {
   ev.preventDefault();
+  if (ev.isPrimary){ toques.clear(); arrastando = false; ultimoCentro = null; }
   toques.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
   if (toques.size >= 2){                       // dois dedos: arrasta e dá zoom
     pintando = false;
@@ -701,13 +704,13 @@ chart.addEventListener('pointerdown', (ev) => {
     ultimoCentro = centroDosToques();
     distIni = distanciaDosToques(); zoomIni = zoom;
     for (const id of toques.keys())
-      if (chart.hasPointerCapture(id)) chart.releasePointerCapture(id);
+      { try { if (quadro.hasPointerCapture(id)) quadro.releasePointerCapture(id); } catch (e) {} }
     return;
   }
-  chart.setPointerCapture(ev.pointerId);
   pintando = true; pintar(ev);
+  try { quadro.setPointerCapture(ev.pointerId); } catch (e) {}
 });
-chart.addEventListener('pointermove', (ev) => {
+quadro.addEventListener('pointermove', (ev) => {
   if (toques.has(ev.pointerId)) toques.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
   if (arrastando && toques.size >= 2){
     const c = centroDosToques(), r = quadro.getBoundingClientRect();
@@ -726,12 +729,15 @@ function soltarToque(ev){
   if (toques.size < 2){ arrastando = false; ultimoCentro = null; }
   if (toques.size === 0) pintando = false;
 }
-chart.addEventListener('pointerup', soltarToque);
-chart.addEventListener('pointercancel', soltarToque);
+quadro.addEventListener('pointerup', soltarToque);
+quadro.addEventListener('pointercancel', soltarToque);
+addEventListener('pointerup', soltarToque);
+addEventListener('pointercancel', soltarToque);
+quadro.addEventListener('lostpointercapture', soltarToque);
 addEventListener('pointerup', () => { pintando = false; });
-chart.addEventListener('contextmenu', (ev) => ev.preventDefault());
+quadro.addEventListener('contextmenu', (ev) => ev.preventDefault());
 for (const tipo of ['touchstart','touchmove'])
-  quadro.addEventListener(tipo, (ev) => { if (ev.target === chart) ev.preventDefault(); }, { passive:false });
+  quadro.addEventListener(tipo, (ev) => ev.preventDefault(), { passive:false });
 document.querySelectorAll('.zoom button').forEach(b => b.addEventListener('click', () => {
   const d = Number(b.dataset.zoom);
   if (d === 0) caber(); else aplicarZoom(zoom*(d > 0 ? 1.25 : 0.8));
