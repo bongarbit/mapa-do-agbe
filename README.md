@@ -1,6 +1,6 @@
 # Mapa do Agbê
 
-Protótipo web para visualizar um Agbê em 3D e criar uma carta de distribuição de miçangas sobre a rede do instrumento.
+Editor web para planejar a rede de um Agbê, desenhar a distribuição de miçangas e conferir o resultado em um modelo 3D interativo.
 
 O projeto gera a cabaça, os cordões e as miçangas proceduralmente com [Three.js](https://threejs.org/). Também permite exportar o modelo para formatos usados por programas de modelagem 3D.
 
@@ -12,13 +12,16 @@ O editor publicado no GitHub Pages está disponível em:
 
 ## Funcionalidades
 
-- Visualização interativa do Agbê em 3D.
-- Rotação, aproximação e deslocamento da câmera.
-- Editor visual da carta de miçangas.
-- Alteração da quantidade de linhas da rede.
-- Aplicação de padrões predefinidos.
-- Persistência local do desenho no navegador.
-- Exportação da carta como PNG.
+- Mapa editável da cabaça aberta, com o traçado diagonal das linhas.
+- Visualização 3D sincronizada com o mapa de miçangas.
+- Controle do número de pontos na argola e do tamanho da cabaça.
+- Ajuste da quantidade de miçangas entre nós em cada fiada.
+- Paleta Bongarbit expansível e criação de cores personalizadas.
+- Padrões de exemplo, listras e preenchimento completo.
+- Persistência automática do desenho e da paleta no navegador.
+- Exportação do mapa como PNG.
+- Exportação e importação do projeto no formato `.agbe`.
+- Interface móvel com abas para alternar entre mapa e modelo 3D.
 - Exportação do modelo como OBJ + MTL ou GLB.
 
 ## Estrutura do projeto
@@ -54,20 +57,32 @@ Evite abrir os arquivos diretamente com `file://`, pois os módulos JavaScript p
 Em `agbe-carta.html`:
 
 1. Escolha uma cor na paleta.
-2. Clique ou arraste sobre a carta para colocar miçangas.
-3. Use `Alt` ou o botão direito para apagar.
-4. Use `Shift` enquanto pinta para preencher uma fiada inteira.
-5. Ajuste a quantidade de linhas para recalcular a rede.
-6. Ative ou desative a exibição dos cordões.
-7. Use os padrões disponíveis para restaurar rapidamente uma composição.
+2. Clique, toque ou arraste sobre as casas editáveis do mapa para colocar miçangas.
+3. Selecione **vazio** para retirar miçangas.
+4. Ajuste os pontos na argola e o tamanho da cabaça para recalcular a rede.
+5. Use os botões `−` e `+` da tabela para alterar as miçangas entre nós em cada fiada.
+6. Ative ou desative a exibição das linhas e do traçado sobre o mapa.
+7. Use **Mais cores** para habilitar outras cores Bongarbit ou adicionar uma cor personalizada.
+8. Use os padrões disponíveis para iniciar ou limpar rapidamente uma composição.
+
+Em telas sensíveis ao toque, um dedo pinta e dois dedos deslocam o mapa. As barras de rolagem também podem ser usadas para navegar. As abas **Mapa** e **Modelo 3D** alternam entre as duas visualizações em telas estreitas.
 
 O desenho é salvo automaticamente no `localStorage` do navegador. Esse conteúdo é local ao navegador e à origem utilizada para abrir o projeto.
+
+## Salvar e compartilhar projetos
+
+- **Baixar mapa** gera uma imagem PNG do desenho.
+- **Exportar projeto** salva parâmetros, paleta e miçangas em um arquivo `.agbe`.
+- **Importar projeto** restaura um arquivo `.agbe` exportado anteriormente.
+
+O arquivo `.agbe` usa JSON e pode ser armazenado, enviado para outra pessoa ou aberto novamente no editor. A importação substitui o projeto atualmente carregado no navegador.
 
 ## Controles do modelo 3D
 
 - Arrastar: orbitar o modelo.
 - Roda do mouse ou gesto de pinça: aproximar e afastar.
 - Botão direito + arrastar: deslocar a câmera.
+- Controle **girando**: ativa ou desativa a rotação automática no editor.
 - `Download OBJ + MTL`: exportar geometria e materiais básicos.
 - `Download GLB`: exportar o modelo em glTF binário.
 
@@ -109,9 +124,11 @@ Ao modificar o projeto, verifique pelo menos:
 
 1. carregamento das duas páginas sem erros no console;
 2. interação com câmera e editor;
-3. persistência após recarregar a página;
-4. exportação de PNG, OBJ/MTL e GLB;
-5. comportamento em telas estreitas e com diferentes densidades de pixel.
+3. persistência do mapa e da paleta após recarregar a página;
+4. exportação e importação de `.agbe`;
+5. exportação de PNG, OBJ/MTL e GLB;
+6. pintura e deslocamento do mapa em telas sensíveis ao toque;
+7. comportamento em telas estreitas e com diferentes densidades de pixel.
 
 ## Licença
 
